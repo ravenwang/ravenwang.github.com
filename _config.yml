@@ -1,0 +1,4 @@
+title: Indie 之路
+markdown: rdiscount
+pygments: true
+permalink: /blog/:title
