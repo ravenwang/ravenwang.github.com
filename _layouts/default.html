@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>{{ site.title }}</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/ravenw" />
+		<style type="text/css" media="all">@import "/css/drupal.css";</style>
+		<link rel="stylesheet" type="text/css" href="/css/common.css" />
+		<style type="text/css" media="all">@import "/css/style.css";</style>
+	</head>
+
+	<body>
+		<div id="header">
+			<h1 class="site-name title"><a href="">{{ site.title }}</a></h1>
+		</div>
+
+		<table id="content">
+			<tr>
+				<td id="sidebar-left">
+					<div class="block block-block" id="block-block-1">
+						<h2 class="title"></h2>
+						<div class="content">
+							<b>
+								<div style="text-align:right">
+									<p>
+									<a href="/">Home</a><p>
+									<a href="/Archives">Archives</a><p>
+									<a href="/About">About</a><p>
+									<a href="/rss.xml"><img src="/images/xml.gif" border=0 /></a><p>
+								</div>
+							</b>
+							<hr style="border-width:0 0 1px 0" />
+						</div>
+					</div>
+				</td>
+				<td id="main">
+					{{ content }}
+
+					<div id="footer"><hr style="border-width: 0pt 0pt 1px;" />
+					</div>
+				</td>
+				<td id="sidebar-right">
+					<div class="block block-archive" id="block-archive-0">
+						<h2 class="title">Browse archives</h2>
+						<div class="content">
+							%Archive List%
+						</div>
+					</div>
+
+					<div class="block block-forum" id="block-forum-0">
+						<h2 class="title">Active forum topics</h2>
+						<div class="content">
+							<div class="item-list">
+								<ul>
+									<li>2011-08</li>
+									<li>2011-09</li>
+								</ul>
+							</div>
+							<div class="more-link"><a href="forum" title="Read the latest forum topics.">more</a></div></div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
+
+
