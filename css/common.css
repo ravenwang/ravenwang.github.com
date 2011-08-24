@@ -37,7 +37,7 @@ pre {
 	padding: 1em;
 	background: #eee;
 	/* suggested by sjoerd visscher */
-	width: 98%; overflow: auto;
+	/*width: 98%; overflow: auto;*/
 }
 li {
 	padding-bottom: .3em;
