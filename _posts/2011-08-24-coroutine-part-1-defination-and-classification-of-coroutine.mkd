@@ -69,7 +69,7 @@ published: true
 
 之前的协程定义的问题在于，这个定义不够精确，遗留下了开放的，关于协程结构的问题。这导致了协程概念的模糊，造成理解上的困扰。这个问题也部分导致了主流语言一直缺乏对协程的支持。甚至在描述一些本质上属于协程的机制时，如Windows的纤程（Fiber），连协程这个术语都很少被提起。
 
-直到2004年由Lua的作者Ana Lucia de Moura和Roberto Ierusalimschy所发表的论文Revisiting Coroutines中，才正式对协程进行了分类，论文中依照三个问题区分协程：
+直到2004年由Lua的作者Ana Lucia de Moura和Roberto Ierusalimschy所发表的论文[Revisiting Coroutines](http://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf)中，才正式对协程进行了分类，论文中依照三个问题区分协程：
 
 * 控制传递（Control-transfer）机制
 * 协程是否作为语言的第一类（First-class）对象提供
@@ -98,3 +98,6 @@ published: true
 
 如今对协程的研究和应用有重新复苏的趋势，主要集中在两个方向。一个是研究它在协作式多任务管理上相对于多线程的优势，目前以程序库和系统资源的方式提供了一些形式的协程。另一个就是用于实现迭代器和生成器的协程，如Perl、C#、Python、Ruby等。而Lua基于Revisiting Coroutines的观点，实现了完全非对称协，事实也证明了这种机制在实现一些控制结构时异常方便和强大。
 
+###相关参考###
+
+关于协程的相关资料[@sagasw](http://twitter.com/sagasw)有一篇相当全面的汇总，强烈推荐：[关于线程Thread、协程Coroutine、生成器Generator、yield资料](http://sunxiunan.com/?p=1907)。
