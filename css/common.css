@@ -79,7 +79,7 @@ br {
 }
 #sidebar-left, #sidebar-right {
 	vertical-align: top;
-	padding: 10px;
+	padding: 0 10px;
 }
 #sidebar-left {
 	width: 160px;
