@@ -1,0 +1,100 @@
+---
+layout: post
+title: 协程（一）：协程的定义与分类
+category: programming-language
+tag: coroutine
+published: true
+---
+
+###协程的定义###
+
+协程的概念最早由Melvin Conway在1963年提出并实现，用于简化COBOL编译器的词法和句法分析器间的协作，当时他对协程的描述是“行为与主程序相似的子例程”。
+
+[Wiki](http://en.wikipedia.org/wiki/Coroutine)的定义：协程是一种程序组件，是由子例程（过程、函数、例程、方法、子程序）的概念泛化而来的，子例程只有一个入口点且只返回一次，而协程允许多个入口点，可以在指定位置挂起和恢复执行。
+
+这是从直观上对协程的概念所做的理解，与1980年Marlin的论文中给出的定义类似，也是被广为引用的协程定义：
+
+* 协程的本地数据在后续调用中始终保持
+* 协程在控制离开时暂停执行，当控制再次进入时只能从离开的位置继续执行
+
+来看Wiki举出的，也是解释协程时最常见的生产-消费者模型的例子：
+
+	var q := new queue
+
+	coroutine produce
+		loop
+			while q is not full
+				create some new items
+				add the items to q
+			yield to consume
+
+	coroutine consume
+		loop
+			while q is not empty
+				remove some items from q
+				use the items
+			yield to produce
+
+这个例子中容易让人产生疑惑的一点就是yield的使用，它与我们通常所见的yield指令不同。这是因为我们常见的yield指令大都是基于生成器（Generator）这一概念的。下面是基于生成器的生产-消费者模型实现（依然来自Wiki）：
+
+	var q := new queue
+
+	generator produce
+		loop
+			while q is not full
+				create some new items
+				add the items to q
+			yield consume
+
+	generator consume
+		loop
+			while q is not empty
+				remove some items from q
+				use the items
+			yield produce
+
+	subroutine dispatcher
+		var d := new dictionary〈generator → iterator〉
+		d[produce] := start produce
+		d[consume] := start consume
+		var current := produce
+		loop
+			current := next d[current]	
+
+根据大部分网上资料（包括Wiki）的解释，这是基于生成器实现了协程。但根据之前协程的定义：1）本地数据在后续调用中始终保持，2）控制离开时挂起，重新进入时继续执行。我们看这里的produce与consume过程，完全符合协程的概念。也就是说，根据定义，生成器本身就是协程。
+
+两种明显不同的控制结构，却都符合协程的定义，问题出在哪里？
+
+###协程的分类###
+
+之前的协程定义的问题在于，这个定义不够精确，遗留下了开放的，关于协程结构的问题。这导致了协程概念的模糊，造成理解上的困扰。这个问题也部分导致了主流语言一直缺乏对协程的支持。甚至在描述一些本质上属于协程的机制时，如Windows的纤程（Fiber），连协程这个术语都很少被提起。
+
+直到2004年由Lua的作者Ana Lucia de Moura和Roberto Ierusalimschy所发表的论文Revisiting Coroutines中，才正式对协程进行了分类，论文中依照三个问题区分协程：
+
+* 控制传递（Control-transfer）机制
+* 协程是否作为语言的第一类（First-class）对象提供
+* 协程是否为栈式（Stackful）构造，即是否可以在内部的嵌套调用中挂起
+
+####对称与非对称协程####
+
+控制传递机制的不同区分出了对称（Symmetric）和非对称（Asymmetric）协程。对称协程只提供一种传递操作，用于在协程间直接传递控制。非对称协程（常称为半对称（Semi-symmetric）协程或半（Semi）协程）提供调用和挂起两种操作，挂起时控制返回给调用者。在我们的生产-消费者模型的例子中，前者是对称协程，生成器是一种非对称协程。
+
+出于支持并发而提供的协程通常是对称协程，用于表示独立的执行单元，如Modula-2中的协程。用于产生值序列的协程则为非对称协程，如迭代器和生成器。在很长一段时间里的普遍看法是，对称与非对称协程的能力不同。所以一些支持通用协程机制的语言同时提供了这两类控制传递，如Simula和BCPL。
+
+事实上很容易证明这两种控制传递机制可以相互表达，因此要提供通用协程时只须实现其中一种即可。但是，两者表达力相同并不意味着在易用性上也相同。对称协程会把程序的控制流变得复杂而难以理解和管理，而非对称协程的行为在某种意义上与函数类似，因为控制总是返回给调用者。使用非对称协程写出的程序更加结构化。
+
+####第一类（First-class）与受限协程####
+
+协程是否作为语言的第一类对象提供对表达力的影响极大。为特定用途而实现的协程，往往把协程对象限制在
+指定的代码结构中，无法由程序员直接控制。一些语言实现的迭代器（CLU，Sather）和生成器（Icon）被限制在某个循环内使用，属于受限协程。只有实现为第一类对象的协程可以提供自定义控制结构的能力，而这种能力正是协程强大的表现力所在。
+
+####栈式（Stackful）构造####
+
+栈式协程允许在内部的嵌套函数中挂起，恢复时从挂起点继续执行。非栈式协程只能在主体部分执行挂起操作，可以用来开发简单的迭代器或生成器，但遇到复杂些的控制结构时，会把问题搞得更加复杂。例如，如果生成器的生成项是通过递归或辅助函数生成的，必须创建出一系列相应层级结构的辅助生成器连续生成项直到到达原始调用点。非栈式协程也不足以实现用户级多任务。
+
+###完全协程###
+
+综上所述可以认为，是否为第一类对象以及是否为栈式构造，这两个问题决定了协程的能力。Revisiting Coroutines一文提出了完全协程的概念，即第一类、栈式的协程对象。随后论证了完全协程的表达力等同于One-shot continuation，关于Continuation的概念及相关论证在随后的文章中我会提到，Continuation的出现也一定程度上导致了对协程研究的中止，因为普遍认为Continuation的表达力要远超协程。
+
+如今对协程的研究和应用有重新复苏的趋势，主要集中在两个方向。一个是研究它在协作式多任务管理上相对于多线程的优势，目前以程序库和系统资源的方式提供了一些形式的协程。另一个就是用于实现迭代器和生成器的协程，如Perl、C#、Python、Ruby等。而Lua基于Revisiting Coroutines的观点，实现了完全非对称协，事实也证明了这种机制在实现一些控制结构时异常方便和强大。
+
