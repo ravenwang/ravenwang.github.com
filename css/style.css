@@ -11,7 +11,7 @@ a:visited {
 }
 body {
   background-repeat: repeat-x;
-  font-family: trebuchet ms, tahoma, verdana, arial, helvetica;
+  font-family: helvetica, arial, 'trebuchet ms', sans-serif;
   /* background-image: url(background.gif); border-top: 10px solid gray; */
 }
 ul {
