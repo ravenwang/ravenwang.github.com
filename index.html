@@ -2,4 +2,19 @@
 layout: default
 ---
 
-index page
+{% for post in site.posts %}
+
+<div class="node">
+	<h2 class="title"><a href="{{post.url}}">{{ post.title }}</a></h2>
+	<div class="content">
+		{{ post.content }}
+	</div>
+	<div class="links">
+		Post at {{ post.date | date_to_string }} |
+		Category: {{ post.category }} |
+		Tags: {{ post.tags }} |
+		<a href="{{ post.url }}#comments">Leave comment</a>
+	</div>
+</div>
+
+{% endfor %}
