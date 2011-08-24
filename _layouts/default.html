@@ -46,11 +46,14 @@
 					</div>
 
 					<div class="block">
-						<h2 class="title">Recently posts</h2>
+						<h2 class="title">Recent</h2>
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									<li>协程的定义与分类</li>
+									{% for post in site.posts limit: 5 %}
+									<li><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
+									{% endfor %}
+									
 								</ul>
 							</div>
 						</div>
@@ -61,27 +64,31 @@
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									<li>Programming-language</li>
+									{% for cat in site.iterable.categories %}
+									<li><a href="/categories/{{ cat.name | replace:' ','-' | downcase }}">{{ cat.name }}</a></li>
+									{% endfor %}
 								</ul>
 							</div>
 						</div>
 					</div>
 
 					<div class="block">
-						<h2 class="title">Archives</h2>
+						<h2 class="title">Tags</h2>
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									<li>2011-08</li>
+									{% for tag in site.iterable.tags %}
+									<li><a href="/tags/{{ tag.name | replace:' ','-' | downcase }}" name="{{ tag.name | replace:' ','-' | downcase }}">{{ tag.name }}</a></li>
+									{% endfor %}
 								</ul>
 							</div>
 						</div>
 					</div>
 
 					<div id="footer"><hr style="border-width: 0pt 0pt 1px;" />
-						本站内容未做特别说明者均使用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">创作共用协议</a>.
+						本站内容未做特别说明者均使用<a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">创作共用协议</a>
 						<br />
-						Hosted by <a href="http://github.com">GitHub</a> and powered by <a href="http://github.com/mojombo/jekyll">Jekyll</a>.
+						Hosted by <a href="http://github.com">GitHub</a> and powered by <a href="http://github.com/mojombo/jekyll">Jekyll</a>
 					</div>
 				</td>
 			</tr>

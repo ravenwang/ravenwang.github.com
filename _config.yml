@@ -1,4 +1,6 @@
 title: Indie 之路
 markdown: rdiscount
 pygments: true
-permalink: /blog/:title
+permalink: /blog/:year/:month/:day/:title
+regeneration: true
+tag_title_prefix: 'Tag: '
