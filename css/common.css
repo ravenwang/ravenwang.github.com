@@ -96,7 +96,6 @@ br {
 #footer {
 	font-size: 0.8em;
 	padding-top: 2em;
-	text-align: center;
 }
 
 /*
@@ -144,13 +143,6 @@ br {
 	padding: 0em 0.5em 0em 0em;
 }
 
-/*
- ** Logo Image Positioning
- */
-#header img {
-	float: left; 
-	padding: 0em 2em .5em 0em;
-}
 #header {
 	clear: both;
 }
