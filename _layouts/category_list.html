@@ -1,0 +1,6 @@
+---
+layout: default
+---
+{% for cat in page.categories %}
+	<li><a href="/categories/{{ cat | replace:' ', '-' | downcase  }}">{{ cat }}</a></li>
+{% endfor %}
