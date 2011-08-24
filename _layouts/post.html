@@ -1,0 +1,20 @@
+---
+layout: default
+---
+<div><h2 class="title">{{ page.title }}</h2></div>
+
+<div class="node">
+	<div class="content">
+		{{ content }}
+	</div>
+	<div class="links">
+		Post at {{ page.date | date_to_string }} |
+		Category: {{ page.category }} |
+		Tags: {{ page.tags }}
+	</div>
+
+	<a id="comments"></a>
+
+
+</div>
+
