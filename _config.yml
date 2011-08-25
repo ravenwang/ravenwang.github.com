@@ -2,6 +2,8 @@ title: Indie 之路
 url: http://ravenw.com
 markdown: rdiscount
 pygments: true
-permalink: /blog/:year/:month/:day/:title
 regeneration: true
+permalink: /blog/:year/:month/:day/:title
+category_dir: ../categories
+tag_dir: ../tags
 tag_title_prefix: 'Tag: '
