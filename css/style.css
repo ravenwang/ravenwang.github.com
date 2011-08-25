@@ -86,3 +86,8 @@ ul {
   font-style: italic;
   font-size: 0.9em;
 }
+
+.rss-feed {
+	padding-left: 25px;
+	background: url("/images/feed-icon-14x14.png") no-repeat scroll 5px 4px transparent;
+}
