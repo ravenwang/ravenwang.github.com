@@ -1,14 +1,22 @@
 ---
 layout: default
 ---
-<div><h2 class="title">{{ page.title }}</h2></div>
+<div>
+	<h2 class="title">{{ page.title }}</h2>
+
+	<div style="float:right">
+		<a href="http://twitter.com/share" class="twitter-share-button"
+			data-via="ravenwang"
+			data-text="{{ page.title }}">Tweet</a>
+	</div>
+</div>
 
 <div class="node">
 	<div class="content">
 		{{ content }}
 	</div>
 	<div class="links">
-		Post at {{ page.date | date_to_string }} |
+		{{ page.date | date_to_string }} |
 		Category: {{ page.category }} |
 		Tags: {{ page.tags }}
 	</div>
