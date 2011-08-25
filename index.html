@@ -18,7 +18,7 @@ layout: default
 		{{ post.content }}
 	</div>
 	<div class="links">
-		Post at {{ post.date | date_to_string }} |
+		{{ post.date | date_to_string }} |
 		Category: {{ post.category }} |
 		Tags: {{ post.tags }} |
 		<a href="{{ post.url }}#comments">Leave comment</a>
