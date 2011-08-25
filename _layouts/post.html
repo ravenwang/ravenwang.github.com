@@ -25,8 +25,22 @@ layout: default
 	</div>
 </div>
 
-<a href="#comments"></a>
+{% if site.related_posts.size > 0 %}
+<hr style="border-width: 0pt 0pt 1px;" />
+<h3>Related posts</h3>
+<div class="node">
+	<ul>
+		{% for post in site.related_posts %}
+		<li><a href="{{ post.url }}">{{ post.title }}</a></li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+<hr style="border-width: 0pt 0pt 1px;" />
+
 <div id="comments">
+	<a href="#comments"></a>
 	<div id="disqus_thread"></div>
 	<script type="text/javascript">
 		(function() {
