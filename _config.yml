@@ -1,4 +1,5 @@
 title: Indie 之路
+url: http://ravenw.com
 markdown: rdiscount
 pygments: true
 permalink: /blog/:year/:month/:day/:title
