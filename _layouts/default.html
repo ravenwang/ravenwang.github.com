@@ -68,7 +68,7 @@
 	  enableLinks: true, 
 	  ignoreReplies: true, 
 	  clearContents: true,
-	  template: '%text%'
+	  template: '%text% - %time%'
 	});
 </script>
 
@@ -91,8 +91,8 @@
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									{% for cat in site.iterable.categories %}
-									<li><a href="/categories/{{ cat.name | replace:' ','-' | downcase }}">{{ cat.name }}</a></li>
+									{% for cat in site.categories %}
+									<li><a href="/categories/{{ cat | first | replace:' ','-' | downcase }}">{{ cat | first }}</a></li>
 									{% endfor %}
 								</ul>
 							</div>
@@ -112,10 +112,10 @@
 					<div class="block">
 						<h2 class="title">Tags</h2>
 						<div class="content">
-							<div class="item-list">
+							<div class="item-list tag-cloud">
 								<ul>
-									{% for tag in site.iterable.tags %}
-									<li><a href="/tags/{{ tag.name | replace:' ','-' | downcase }}" name="{{ tag.name | replace:' ','-' | downcase }}">{{ tag.name }}</a></li>
+									{% for tag in site.tags %}
+									<li><a href="/tags/{{ tag | first | replace:' ','-' | downcase }}" name="{{ tag | first | replace:' ','-' | downcase }}">{{ tag | first }}</a></li>
 									{% endfor %}
 								</ul>
 							</div>
