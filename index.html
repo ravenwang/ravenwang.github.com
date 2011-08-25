@@ -19,9 +19,12 @@ layout: default
 	</div>
 	<div class="links">
 		{{ post.date | date_to_string }} |
-		Category: {{ post.category }} |
-		Tags: {{ post.tags }} |
-		<a href="{{ post.url }}#comments">Leave comment</a>
+		Category: <a href="/categories/{{ post.category | replace:' ','-' | downcase }}">{{ post.category }}</a> |
+		Tags:
+		{% for tag in post.tags %}
+		<a href="/tags/{{ tag | replace:' ','-' | downcase }}">{{ tag }}</a>
+		{% endfor %}
+		
 	</div>
 </div>
 

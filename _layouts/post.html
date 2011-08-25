@@ -17,8 +17,11 @@ layout: default
 	</div>
 	<div class="links">
 		{{ page.date | date_to_string }} |
-		Category: {{ page.category }} |
-		Tags: {{ page.tags }}
+		Category: <a href="/categories/{{ page.category | replace:' ','-' | downcase }}">{{ page.category }}</a> |
+		Tags:
+		{% for tag in page.tags %}
+		<a href="/tags/{{ tag | replace:' ','-' | downcase }}">{{ tag }}</a>
+		{% endfor %}
 	</div>
 </div>
 
