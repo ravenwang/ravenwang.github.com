@@ -4,6 +4,9 @@ category: Programming Language
 tags:
  - theory
  - coroutine
+ - iterator
+ - generator
+ - yield
 layout: post
 ---
 
