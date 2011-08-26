@@ -207,3 +207,14 @@ div.comment blockquote {
 	font-style: normal;
 }
 
+.tag-cloud ul {
+	list-style: none outside none;
+	margin: 0;
+	padding: 0;
+}
+
+.tag-cloud ul li {
+	display: inline;
+	padding: 0;
+	margin: 5px;
+}
