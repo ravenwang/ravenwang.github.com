@@ -3,12 +3,14 @@
 /*
  ** HTML elements
  */
-a, a:link, a:active {
+a, a:link, a:active, a:visited {
 	font-weight: bold;
 	text-decoration: none;
+	color: #556677;
 }
 a:hover {
 	text-decoration: underline;
+	color: #665544;
 }
 body {
 	margin: 0;
@@ -35,8 +37,9 @@ code, pre {
 }
 pre {
 	/* avs: removed: font-size: 0.8em; */
-	padding: 0 2em;
-	background: #eee;
+	padding: 1em 2em;
+	background: #E0DFCC;
+	border-radius: 10px 10px 10px 10px;
 	/* suggested by sjoerd visscher */
 	/*width: 98%; overflow: auto;*/
 }

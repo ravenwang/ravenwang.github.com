@@ -3,12 +3,6 @@
 /*
 ** HTML elements
 */
-a, a:link, a:active {
-  color: #00F;
-}
-a:visited {
-  color: #808;
-}
 body {
   background-repeat: repeat-x;
   font-family: helvetica, arial, 'trebuchet ms', sans-serif;
@@ -43,10 +37,6 @@ ul {
 #header .title a:visited,
 #header .title a:active {
   text-decoration: underline;
-  color: #00a;
-}
-#header .title a:hover {
-  color: #00F;
 }
 .node .title {
   font-size: 1.2em;
