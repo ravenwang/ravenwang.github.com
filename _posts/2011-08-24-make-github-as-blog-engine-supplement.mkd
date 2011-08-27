@@ -1,0 +1,46 @@
+---
+title: 使用github作为博客引擎 补遗
+category: Utilities
+tags:
+ - github
+ - jekyll
+ - plugin
+ - deployment
+layout: post
+---
+
+本博客是通过[Jekyll模版引擎](http://github.com/mojombo/jekyll)制作并发布在[GitHub](http://github.com)上的。我觉得对于程序员来说，这套组合简直完美。关于Jekyll这个绝妙的主意是如何产生的，可以读一读作者[Tom Preston-Werner](https://github.com/mojombo/)（同时也是GitHub创始人之一）的文章[Blogging Like a Hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html)，这里有[中文版](http://kyle.xlau.org/2009/08/13/blogging-like-a-hacker.html)。
+
+发现这套工具源于无意间看到的[@lzyy](http://twitter.com/lzyy)的一篇文章[使用github作为博客引擎](http://blog.leezhong.com/tech/2010/08/25/make-github-as-blog-engine.html)。当时参考这篇文章我很快建起了自己的博客（虽然最后什么都没写出来……）。最近下定决心要创建一个技术博客并坚持写下去，于是花了两三天时间从头重建了这里。现在把遇到的一些问题和解决方案写下来，作为@lzyy原文的补充。
+
+###基础配置###
+
+首先说明，这套工具对**非程序员**来说并不合适。基础配置请参考[原文](http://blog.leezhong.com/tech/2010/08/25/make-github-as-blog-engine.html)，对于一个程序员来说，如果你稍有一些Git知识，这个过程会非常容易，如果了解Ruby会更加轻松。
+
+这里我遇到的唯一一个问题是域名绑定的问题，因为我想把一级域名绑定到GitHub站点。这是无法通过设置CNAME完成的，只能设置一条A记录，把根域名指向GitHub的IP地址：207.97.227.245。
+
+###包含文件###
+
+如果有共用的页面片段，可以把这些片段放在\_include目录下，然后在需要的位置使用include标签：
+
+	{{ "{% include sig.textile " }}%}
+
+Jekyll使用[Liquid模版语言](http://www.liquidmarkup.org/)处理模版，并进行了扩展。更多标签和Filter请参考[这里](https://github.com/shopify/liquid/wiki/liquid-for-designers)和[这里](https://github.com/mojombo/jekyll/wiki/Liquid-Extensions)。
+
+###使用插件###
+
+Jekyll的核心只是一个页面生成器，只负责根据模版生成静态页面。博客常有的文章分类、标签和归档功能可以通过[插件](https://github.com/mojombo/jekyll/wiki/Plugins)提供。插件放在\_plugins目录下，Jekyll在生成页面时会处理这个目录下的\*.rb文件。
+
+我使用了[josegonzalez](https://github.com/josegonzalez)提供的[一套博客插件](https://github.com/josegonzalez/josediazgonzalez.com/tree/master/_plugins)，目前只使用了分类和标签两个。这两个插件都是在生成网站时根据\_layouts目录下的模版来生成相应的分类和标签页面。
+
+这些插件依赖几个Gems，如果生成时出错时按提示安装即可。
+
+###部署问题###
+
+注意，因为安全问题，GibHub在生成网站时是不会调用用户目录中的插件的。如果想使用插件，一个方案是在本地生成网站，然后把\_site目录作为一个项目放在GitHub上，这个方案我没有尝试；目前针对我使用的两个插件，我把它们的生成目录指向了根目录下的category和tags，这样Jekyll会把这两个目录作为普通目录处理，即直接放到生成网站的根目录下，稍嫌麻烦的是要在本地看结果时需要生成两次。
+
+除了此之外，也可以把网站部署到[Heroku](http://www.heroku.com/)等网站，部署方案可以参考[这里](https://github.com/mojombo/jekyll/wiki/Deployment)。
+
+
+
+
