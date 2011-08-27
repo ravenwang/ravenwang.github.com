@@ -6,11 +6,10 @@
 a, a:link, a:active, a:visited {
 	font-weight: bold;
 	text-decoration: none;
-	color: #556677;
+	color: #015FAB;
 }
 a:hover {
 	text-decoration: underline;
-	color: #665544;
 }
 body {
 	margin: 0;
