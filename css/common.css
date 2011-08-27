@@ -31,10 +31,11 @@ table {
 }
 code, pre {
 	font-size: 1em;
+	line-height: 1.6em;
 }
 pre {
 	/* avs: removed: font-size: 0.8em; */
-	padding: 1em;
+	padding: 0 2em;
 	background: #eee;
 	/* suggested by sjoerd visscher */
 	/*width: 98%; overflow: auto;*/
@@ -43,7 +44,7 @@ li {
 	padding-bottom: .3em;
 }
 h1, h2, h3, h4, h5, h6 {
-	margin-bottom: .25em;
+	margin: 1.6em 0 .25em;
 }
 h1 {
 	font-size: 1.3em;
@@ -58,7 +59,7 @@ h4, h5, h6 {
 	font-size: 1em;
 }
 p {
-	margin: 0 0 .5em 0;
+	margin: 1em 0 .5em 0;
 }
 br {
 	line-height: 0.6em;
