@@ -25,47 +25,51 @@ layout: post
 
 来看Wiki举出的，也是解释协程时最常见的生产-消费者模型的例子：
 
-	var q := new queue
+{% highlight scala %}
+var q := new queue
 
-	coroutine produce
-		loop
-			while q is not full
-				create some new items
-				add the items to q
-			yield to consume
+coroutine produce
+	loop
+		while q is not full
+			create some new items
+			add the items to q
+		yield to consume
 
-	coroutine consume
-		loop
-			while q is not empty
-				remove some items from q
-				use the items
-			yield to produce
+coroutine consume
+	loop
+		while q is not empty
+			remove some items from q
+			use the items
+		yield to produce
+{% endhighlight %}
 
 这个例子中容易让人产生疑惑的一点就是yield的使用，它与我们通常所见的yield指令不同。这是因为我们常见的yield指令大都是基于生成器（Generator）这一概念的。下面是基于生成器的生产-消费者模型实现（依然来自Wiki）：
 
-	var q := new queue
+{% highlight scala %}
+var q := new queue
 
-	generator produce
-		loop
-			while q is not full
-				create some new items
-				add the items to q
-			yield consume
+generator produce
+	loop
+		while q is not full
+			create some new items
+			add the items to q
+		yield consume
 
-	generator consume
-		loop
-			while q is not empty
-				remove some items from q
-				use the items
-			yield produce
+generator consume
+	loop
+		while q is not empty
+			remove some items from q
+			use the items
+		yield produce
 
-	subroutine dispatcher
-		var d := new dictionary〈generator → iterator〉
-		d[produce] := start produce
-		d[consume] := start consume
-		var current := produce
-		loop
-			current := next d[current]	
+subroutine dispatcher
+	var d := new dictionary (generator → iterator)
+	d[produce] := start produce
+	d[consume] := start consume
+	var current := produce
+	loop
+		current := next d[current]	
+{% endhighlight %}
 
 根据大部分网上资料（包括Wiki）的解释，这是基于生成器实现了协程。但根据之前协程的定义：1）本地数据在后续调用中始终保持，2）控制离开时挂起，重新进入时继续执行。我们看这里的produce与consume过程，完全符合协程的概念。也就是说，根据定义，生成器本身就是协程。
 
