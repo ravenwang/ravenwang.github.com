@@ -3,12 +3,11 @@ title: 协程（二）：协程的应用
 category: Programming Language
 tags:
  - theory
- - lua
  - coroutine
  - generator
  - iterator
- - goal-oriented
  - multitasking
+ - lua
 layout: post
 ---
 
