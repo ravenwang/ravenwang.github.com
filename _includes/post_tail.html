@@ -2,6 +2,10 @@
 		{{ post.date | date: "%Y-%m-%d" }} |
 		Category: <a href="/categories/{{ post.category | replace:' ','-' | downcase }}">{{ post.category }}</a> |
 
+		{% unless page == post %}
+		<a href="{{ post.url }}#disqus_thread"></a> |
+		{% endunless %}
+
 		{% capture absolute_url %}{{ site.url }}{{ post.url }}{% endcapture %}
 		<span  class='st_twitter' st_url="{{ absolute_url }}" st_title="{{ post.title }}"></span><span  class='st_facebook' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_gbuzz' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sina' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_delicious' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_email' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sharethis' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span>
 
