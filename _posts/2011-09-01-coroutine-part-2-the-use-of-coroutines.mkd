@@ -11,7 +11,7 @@ tags:
 layout: post
 ---
 
-上一篇中对协程的概念做出了解释和澄清。总的来说，完全协程才算得上是真正意义上的协程，其它如生成器等只是部分实现了协程概念的非完全协程，我们之后主要讨论完全协程。
+[上一篇](/blog/2011/08/24/coroutine-part-1-defination-and-classification-of-coroutine)中对协程的概念做出了解释和澄清。总的来说，完全协程才算得上是真正意义上的协程，其它如生成器等只是部分实现了协程概念的非完全协程，我们之后主要讨论完全协程。
 
 本篇介绍一些协程的实际应用。协程本质是一种[控制抽象](http://en.wikipedia.org/wiki/Control_abstraction#Control_abstraction)，它的价值在于可以简洁优雅地实现一些**控制行为**。在协程中，控制可以从当前执行上下文跳转到程序的其它位置，并且可以在之后的任意时刻恢复当前执行上下文，控制从跳出点处继续执行。这种行为与[Continuation](http://en.wikipedia.org/wiki/Continuation)类似，但协程相比之下更容易理解，某些情况下还更加高效。之后会有一篇专门对比这两个概念。
 
