@@ -1,5 +1,5 @@
 ---
-title: 协程（二）：协程的应用
+title: 协程（二）协程的应用
 category: Programming Language
 tags:
  - theory

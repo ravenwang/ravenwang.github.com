@@ -1,5 +1,5 @@
 ---
-title: 协程（一）：协程的定义与分类
+title: 协程（一）协程的定义与分类
 category: Programming Language
 tags:
  - theory
