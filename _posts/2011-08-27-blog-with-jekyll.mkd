@@ -1,5 +1,5 @@
 ---
-title: 使用github作为博客引擎 补遗
+title: 基于Jekyll搭建自己的博客
 category: Utilities
 tags:
  - github
@@ -9,9 +9,11 @@ tags:
 layout: post
 ---
 
+>\[Update 2011-09-05\] 发现了一个基于Jekyll的整合得非常好的博客平台[Octopress](http://octopress.org/)，同样支持发布在GitHub上。我暂时还没有迁移的打算，有兴趣的同学可以参考[这里](http://yavaeye.com/p/show/hello-octopress)和[这里](http://rednaxelafx.github.com/blog/2011/09/04/test-page/)。
+
 本博客是通过[Jekyll模版引擎](http://github.com/mojombo/jekyll)制作并发布在[GitHub](http://github.com)上的。我觉得对于程序员来说，这套组合简直完美。关于Jekyll这个绝妙的主意是如何产生的，可以读一读作者[Tom Preston-Werner](https://github.com/mojombo/)（同时也是GitHub创始人之一）的文章[Blogging Like a Hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html)，这里有[中文版](http://kyle.xlau.org/2009/08/13/blogging-like-a-hacker.html)。
 
-发现这套工具源于无意间看到的[@lzyy](http://twitter.com/lzyy)的一篇文章[使用github作为博客引擎](http://blog.leezhong.com/tech/2010/08/25/make-github-as-blog-engine.html)。当时参考这篇文章我很快建起了自己的博客（虽然最后什么都没写出来……）。最近下定决心要创建一个技术博客并坚持写下去，于是花了两三天时间从头重建了这里。现在把遇到的一些问题和解决方案写下来，作为@lzyy原文的补充。
+发现这套工具源于无意间看到的[@lzyy](http://twitter.com/lzyy)的一篇文章[使用github作为博客引擎](http://blog.leezhong.com/tech/2010/08/25/make-github-as-blog-engine.html)。当时参考这篇文章我很快建起了自己的博客（虽然最后什么都没写出来……）。最近下定决心要开一个技术博客并坚持写下去，于是花了两三天时间从头重建了这里。现在把遇到的一些问题和解决方案写下来，作为@lzyy原文的补充。
 
 ###基础配置###
 
@@ -31,9 +33,7 @@ Jekyll使用[Liquid模版语言](http://www.liquidmarkup.org/)处理模版，并
 
 Jekyll的核心只是一个页面生成器，只负责根据模版生成静态页面。博客常有的文章分类、标签和归档功能可以通过[插件](https://github.com/mojombo/jekyll/wiki/Plugins)提供。插件放在\_plugins目录下，Jekyll在生成页面时会处理这个目录下的\*.rb文件。
 
-我使用了[josegonzalez](https://github.com/josegonzalez)提供的[一套博客插件](https://github.com/josegonzalez/josediazgonzalez.com/tree/master/_plugins)，目前只使用了分类和标签两个。这两个插件都是在生成网站时根据\_layouts目录下的模版来生成相应的分类和标签页面。
-
-这些插件依赖几个Gems，如果生成时出错时按提示安装即可。
+我使用了[josegonzalez](https://github.com/josegonzalez)提供的[一套博客插件](https://github.com/josegonzalez/josediazgonzalez.com/tree/master/_plugins)，目前只使用了分类和标签两个。这两个插件都是在生成网站时根据\_layouts目录下的模版来生成相应的分类和标签页面。这些插件依赖几个Gems，如果生成时出错时按提示安装即可。
 
 ###部署问题###
 

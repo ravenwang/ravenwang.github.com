@@ -202,7 +202,6 @@ div.content blockquote, div.comment blockquote, .abstract {
 }
 
 div.content blockquote, .abstract {
-	color: blue;
 	font-style: italic;
 }
 
