@@ -30,7 +30,7 @@ ul {
 */
 #header h1 { margin-bottom:0; }
 #header .title {
-  font:bold italic 2.1em Georgia,Times New Roman,Times Roman,serif;
+  font:bold italic 2.1em Georgia,"trebuchet ms",sans-serif;
 }
 #header .title a,
 #header .title a:link,
