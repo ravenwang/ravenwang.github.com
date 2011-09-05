@@ -78,7 +78,7 @@ ul {
 }
 
 .rss-feed {
-	margin-left: 10px;
-	padding-left: 20px;
-	background: url("/images/feed-icon-14x14.png") no-repeat scroll 0 0 transparent;
+	margin-left: 5px;
+	padding-left: 18px;
+	background: url("/images/feed-icon-14x14.png") no-repeat scroll 0 transparent;
 }
