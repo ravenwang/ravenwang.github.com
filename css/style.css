@@ -81,5 +81,5 @@ ul {
 .rss-feed {
 	margin-left: 5px;
 	padding-left: 18px;
-	background: url("/images/feed-icon-14x14.png") no-repeat scroll 0 transparent;
+	background: url("/images/feed-icon-14x14.png") no-repeat scroll 0 100% transparent;
 }

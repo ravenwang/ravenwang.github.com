@@ -12,10 +12,11 @@ a:hover {
 	text-decoration: underline;
 }
 body {
-	margin: 0;
-	padding: 1.5em;
+	margin: 0 auto;
+	padding: 1.5em 0;
 	font-size: .9em;
 	line-height: 1.6em;
+	width: 960px;
 }
 
 /*
@@ -36,9 +37,9 @@ code, pre {
 }
 pre {
 	/* avs: removed: font-size: 0.8em; */
-	padding: 1em 2em;
+	padding: 1em 1em;
 	background: #E0DFCC;
-	border-radius: 10px 10px 10px 10px;
+	border-radius: 5px;
 	/* suggested by sjoerd visscher */
 	/*width: 98%; overflow: auto;*/
 }
@@ -85,10 +86,9 @@ br {
 	padding: 0 10px;
 }
 #sidebar-left {
-	width: 160px;
 }
 #sidebar-right {
-	width: 300px;  /* avs */
+	width: 260px;  /* avs */
 }
 
 #main {
