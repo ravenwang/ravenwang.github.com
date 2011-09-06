@@ -236,7 +236,7 @@ end
 
 使用协程实现One-shot continuation时，创建一个单独的协程——即栈“段”——就足以表示一个Continuation。因此，通过协程实现的One-shot continuation与直接实现效率几乎相同。而以Continuation实现协程时，通常每次协程挂起时都需要捕获一个新的Continuation。这导致每次控制转换都需要重新分配一个栈段，相比直接实现的协程效率要大大降低并且需要更多内存。
 
-这里有一篇[Lua、LuaJIT Coroutine和Ruby Fiber的切换效率对比](http://www.blogjava.net/killme2008/archive/2010/03/02/314264.html)，我猜测大概就是由于Ruby是在call/cc之上实现的协程。
+这里有一篇[Lua、LuaJIT Coroutine和Ruby Fiber的切换效率对比](http://www.blogjava.net/killme2008/archive/2010/03/02/314264.html)，我猜测大概就是因为Ruby是在call/cc之上实现的Fiber。
 
 
 
