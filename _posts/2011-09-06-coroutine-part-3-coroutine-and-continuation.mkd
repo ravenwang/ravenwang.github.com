@@ -1,0 +1,242 @@
+---
+title: 协程（三）协程与Continuation
+category: Programming Language
+tags:
+ - theory
+ - coroutine
+ - continuation
+ - callcc
+ - ruby
+ - lua
+layout: post
+---
+
+[Continuation](http://en.wikipedia.org/wiki/Continuation)表示**一个运算在其指定位置的剩余部分**。当Continuation作为语言的第一类（First-class）对象时，可用于实现多种控制结构。同样作为控制结构，First-class continuation的表达力比协程更加强大，而且有着明确定义的语义，以至于在它出现之后对协程的研究就几乎完全停止了。但后来[Revisiting Coroutines](http://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf)中证明了完全协程与One-shot continuation的表达力是完全相同的，而且协程更容易理解和使用，在某些情况下也更加高效。
+
+###理解Continuation###
+
+Continuation是一种描述程序的控制状态的抽象，它用一个数据结构来表示一个执行到指定位置的计算过程；这个数据结构可以由程序语言访问而不是隐藏在运行时环境中。Continuation在生成之后可作为控制结构使用，在调用时会从它所表示的控制点处恢复执行。
+
+注意Continuation所保存的控制状态中并不包括数据。关于这一点有个很有趣的“Continuation三明治”的描述：
+
+>假设你在厨房里的冰箱前面，正打算做一个三明治。这时你获取一个Continuation放进兜里。然后从冰箱拿了些火鸡和面包做了个三明治，放在了桌子上。现在调用兜里的那个Continuation，你会发现你又站在了冰箱前，正打算做个三明治。但这时桌子上已经有个三明治了，而且火鸡和面包也不见了。于是你吃掉了三明治。
+
+Continuation以及与相关的call/cc（[Call-with-current-continuation](http://en.wikipedia.org/wiki/Call-with-current-continuation)）、CPS（[Continuation-passing style](http://en.wikipedia.org/wiki/Continuation-passing_style)）这几个概念比较难理解也容易混淆，要彻底把它们搞明白还真得花一番功夫。Continuation的资料也不多，这里列出几篇中文资料供参考：
+
+* [从Continuation概念说到它在开发中的应用](http://tech.ccidnet.com/art/1077/20050722/292705_1.html)，这篇文章对Continuation的实现和CPS讲解得非常清楚。
+* [Continuations Made Simple and Illustrated](http://www.ps.uni-saarland.de/~duchier/python/continuations.html)，早年Python社区的讨论，有中文翻译[简介延续“Continuation”](http://shiningray.cn/continuations.html)。
+* [尾递归与Continuation](http://blog.zhaojie.me/2009/03/tail-recursion-and-continuation.html)，老赵（[@jeffz_cn](https://twitter.com/jeffz_cn)）在C#中使用CPS的演示。
+
+###First-class continuation###
+
+Continuation这个术语很多时候也用于表示First-class continuation。这时它表示一种语言构造，使语言可以**在任意点保存执行状态**并且**在之后的某个点返回**。这里与协程做比较的正是First-class continuation（或者说是call/cc机制），而不是Continuation结构或CPS编程风格。
+
+调用call/cc时，会把当前Continuation打包成一个第一类对象。然后这个捕获的Continuation被传给call/cc的参数——此参数必须是带一个参数的过程。如果在这个过程中没有调用Continuation就返回了，则返回值作为call/cc的值。如果在其中调用了Continuation并传给它一个值，则这个值立即返回到call/cc处。
+
+基于First-class continuation很容易实现完全协程，主要思路是在切换协程时保存当前Continuation并调用目标协程的Continuation。以下是由[Marc De Scheemaecker](http://liber.sourceforge.net/coroutines.rb)基于Ruby call/cc实现的完全对称协程：
+
+{% highlight ruby %}
+class Coroutine
+	def initialize(&block)
+		# Creates a coroutine. The associated block does not run yet.
+		@started = false
+		@finished = false
+		@block = Proc::new {
+			callcc{|@cc|}
+			block.call
+			@finished = true
+			@started = false
+		}
+	end
+
+	def start
+		# Starts the block. It's an error to call this method on a coroutine
+		# that has already been started.
+		raise "Block already started" if @started
+
+		@started = true
+		@block.call
+	end
+
+	def switch(coroutine)
+		# Switches context to another coroutine. You need to call this method
+		# on the current coroutine.
+		switch = true
+
+		if not coroutine.finished? then
+			callcc{|@cc|}
+
+			if switch then
+				switch = false
+
+				if coroutine.running? then
+					coroutine.continuation.call
+				else
+					coroutine.start
+				end
+			end
+		end
+	end
+
+	def running?
+		# Returns true if the associated block is started and has not yet
+		# finished
+		@started and not @finished
+	end
+
+	def finished?
+		# Returns true if the associated block is finished
+		@finished
+	end
+
+	def continuation
+		# Returns the associated continuation object
+		@cc
+	end
+
+end
+{% endhighlight %}
+
+###One-shot continuation###
+
+所谓One-shot continuation，即只允许调用一次的Continuation。标准的Continuation是允许多次调用（Multi-shot）的，但是很难高效地实现这样的Continuation，因为每次调用之前都必然要生成一个副本，而且在绝大多数情况下Continuation都只会被调用一次，受此启发Bruggeman et al.提出了One-shot continuation的概念和控制符call/1cc。One-shot continuation几乎可以所有应用中替换标准Continuation（包括上面协程的实现）。多次调用One-shot continuation会引发错误，无论是隐式调用（从传给call/1cc的过程中返回）还是显式调用（直接调用由call/1cc创建的Continuation）。
+
+前面提到过完全协程与One-shot continuation的表达力是相同的，证明方式便是它们可以相互实现。从对称协程的视角来看，捕获一个One-shot continuation相当于新建一个协程并把控制传递给它。调用时相当于把控制返回给创建者。这种相似性使得基于对称协程可以很简洁地实现call/1cc。
+
+下面是Lua实现One-shot continuation的代码，首先实现一个完全对称协程：
+
+{% highlight lua %}
+coro = {}
+coro.main = function() end
+coro.current = coro.main
+
+-- function to create a new coroutine
+function coro.create(f)
+	local co = function(val)
+		f(val)
+		error("coroutine ended")
+	end
+	return coroutine.wrap(co)
+end
+
+-- function to transfer control to a coroutine
+function coro.transfer(co, val)
+	if coro.current == coro.main then
+		return coroutine.yield(co, val)
+	end
+
+	-- dispatching loop
+	while true do
+		coro.current = co
+		if co == coro.main then
+			return val
+		end
+		co, val = co(val)
+	end
+end
+{% endhighlight %}
+
+然后是call1cc：
+
+{% highlight lua %}
+function call1cc(f)
+	-- save the continuation "creator"
+	local ccoro = coro.current
+	-- invoking the continuation transfers control
+	-- back to its creator
+	local cont = function(val)
+		if ccoro == nil then
+			error("one shot continuation called twice")
+		end
+		coro.transfer(ccoro, val)
+	end
+	-- when a continuation is captured,
+	-- a new coroutine is created and dispatched
+	local val
+	val = coro.transfer(coro.create(function()
+		local v = f(cont)
+		cont(v)
+	end))
+	-- when control is transfered back, the continuation
+	-- was "shot" and must be invalidated
+	ccoro = nil
+	-- the value passed to the continuation
+	-- is the return value of call1/cc
+	return val
+end
+{% endhighlight %}
+
+{% comment %}
+
+###One-shot subcontinuation###
+
+One-shot Continuation只是对Continuation进行了限制以简化实现，它依然难以使用，和标准Continuation一样，只要应用稍微复杂，它们就会把程序的控制流变得混乱无比。这其中一个主要原因是它们表达的是运算的**全部**剩余部分。出于限制Continuation的作用范围和它对控制流的影响，出现了几个基于[Partial continuation](http://en.wikipedia.org/wiki/Partial_continuation)的概念。Partial continuation表示Continuation的一个“切片”，在调用时它并不终止当前Continuation，而是表现得像函数一样，Partial continuation是[可组合的](http://en.wikipedia.org/wiki/Function_composition_%28computer_science%29)。
+
+[Subcontinuation](http://cs.au.dk/~hosc/local/LaSC-7-1-pp83-110.pdf)是一种Partial continuation，它表示一个**独立的子运算**在其指定位置的剩余部分。Subcontinuation提供一个spawn操作，该操作接受一个过程（子运算）参数，并且向此过程传入一个控制器。如果在过程中未调用控制器，则过程的返回值作为spawn的结果；如果调用了控制器，它会捕获调用点处的Continuation连同当前子运算的根一起作为一个Subcontinuation。控制器也接受一个过程参数（另一个子运算），这个过程接受前面捕获的Subcontinuation作为参数。当控制器再次被调用时会恢复子运算的执行，但只有在控制器的根包含在整个程序的当前Continuation中时才有效，即控制器必须在它所捕获的Subcontinuation被调用时才允许再次调用。
+
+Subcontinuation与完全非对称协程十分相像，把一个完全非对称协程看作一个独立的子运算，调用子运算的控制器相当于挂起协程，调用Subcontinuation相当于恢复协程。
+
+{% highlight lua %}
+function spawn(f)
+	local controller, valid_controller, shot, subK
+
+	-- a coroutine represents a subcomputation
+	local subc = coroutine.wrap(function()
+		return f(controller), nil
+	end)
+
+	-- this function implements the subcomputation controller
+	function controller(fc)
+		if not valid_controller then error("invalid controller") end
+		shot = false
+		val = coroutine.yield(fc, controller)
+		shot = true
+		return val
+	end
+
+	-- this function spawns/reinstates a subcomputation
+	function subK(v)
+		if shot then error("subcontinuation called twice") end
+
+		-- invoke a subcontinuation
+		valid_controller = true
+		local ret, c = subc(v)
+		valid_controller = false
+
+		-- subcomputation terminated ?
+		if c == nil then return ret
+
+			-- if the local controller was invoked, apply
+			-- the function to the subcontinuation
+		elseif c == controller then return ret(subK)
+
+			-- the invoked controller corresponds to
+			-- an outer subcomputation
+		else
+			val = coroutine.yield(ret, c)
+			return subK(val)
+		end
+	end
+
+	-- spawn the subcomputation
+	shot = false
+	return subK()
+end
+{% endhighlight %}
+
+{% endcomment %}
+
+###效率问题###
+
+可以看到，Continuation可以实现协程，同时协程也可以实现One-shot continuation，但这两种相反实现的效率并不相同。
+
+在Bruggeman et al.描述的One-shot continuation实现中，控制栈由栈段（Stack segment）组成的链表表示，整个控制栈被构造成栈帧（Stack of frame）或活动记录（Activation record）。捕获Continuation时，当前栈段被保存到Continuation中，然后分配一个新的栈段。调用Continuation时，丢弃当前栈段，控制返回到之前保存的栈段。
+
+创建一个协程同样包括分配一个单独的栈，但挂起和恢复协程的代价只比标准的函数调用略高。
+
+使用协程实现One-shot continuation时，创建一个单独的协程——即栈“段”——就足以表示一个Continuation。因此，通过协程实现的One-shot continuation与直接实现效率几乎相同。而以Continuation实现协程时，通常每次协程挂起时都需要捕获一个新的Continuation。这导致每次控制转换都需要重新分配一个栈段，相比直接实现的协程效率要大大降低并且需要更多内存。
+
+这里有一篇[Lua、LuaJIT Coroutine和Ruby Fiber的切换效率对比](http://www.blogjava.net/killme2008/archive/2010/03/02/314264.html)，我猜测大概就是由于Ruby是在call/cc之上实现的协程。
+
+
+
