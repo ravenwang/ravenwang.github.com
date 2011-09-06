@@ -1,13 +1,13 @@
 	<div class="links">
-		{{ post.date | date: "%Y-%m-%d" }} |
+		{{ post.date | date_to_long_string }} |
 		Category: <a href="/categories/{{ post.category | replace:' ','-' | downcase }}">{{ post.category }}</a> |
 
 		{% unless page == post %}
 		<a href="{{ post.url }}#disqus_thread"></a> |
 		{% endunless %}
 
-		{% capture absolute_url %}{{ site.url }}{{ post.url }}{% endcapture %}
-		<span  class='st_twitter' st_url="{{ absolute_url }}" st_title="{{ post.title }}"></span><span  class='st_facebook' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_gbuzz' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sina' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_delicious' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_email' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sharethis' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span>
+		{% capture absolute_url %}http://{{ site.domain }}{{ post.url }}{% endcapture %}
+		<span  class='st_twitter' st_url="{{ absolute_url }}" st_title="{{ post.title }}"></span><span  class='st_facebook' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_gbuzz' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sina' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span><span  class='st_sharethis' st_url="{{ absolute_url }}" st_title="{{ post.title }}" ></span>
 
 		<div class="tags">
 			Tags:
