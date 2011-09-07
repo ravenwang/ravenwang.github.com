@@ -5,9 +5,10 @@ tags:
  - theory
  - coroutine
  - continuation
- - callcc
- - ruby
  - lua
+ - ruby
+ - callcc
+ - fiber
 layout: post
 ---
 
