@@ -1,5 +1,5 @@
 	<div class="links">
-		{{ post.date | date_to_string }} |
+		{{ post.date | date: '%b %d, %Y' }} |
 		Category: <a href="/categories/{{ post.category | replace:' ','-' | downcase }}">{{ post.category }}</a> |
 
 		{% unless page == post %}
