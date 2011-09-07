@@ -34,7 +34,6 @@ table {
 .highlight {
 	margin: 0;
 	padding: 0;
-	background: #002B36;
 	width: 660px;
 }
 .lineno {
@@ -51,6 +50,7 @@ code, pre {
 }
 pre {
 	padding: 0;
+	background: #002B36;
 }
 code {
 	padding: .5em 1em;
