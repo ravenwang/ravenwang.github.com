@@ -22,22 +22,23 @@ layout: post
 管道（Pipeline）也是由生产者-消费者模型扩展而来的，管道实际上是由一个生产者，加上一个或多个过滤器（Filter），再加上一个最终的消费者组成的生产者-消费者链。其中过滤器既是生产者又是消费者。以下是由Lua实现的过滤器：
 
 {% highlight lua linenos %}
-function filter(ant)
-	return coroutine.wrap(function())
-		while true do
-			-- resume antecessor to obtain value
-			local x = ant()
-			-- yield transformed value
-			coroutine.yield(f(x))
+
+	function filter(ant)
+		return coroutine.wrap(function())
+			while true do
+				-- resume antecessor to obtain value
+				local x = ant()
+				-- yield transformed value
+				coroutine.yield(f(x))
+			end
 		end
 	end
-end
 {% endhighlight %}
 
 只需要一行语句把生产者、过滤器和消费者串联起来就可以创建出一个管道：
 
 {% highlight lua %}
-consumer(filter(producer()))
+	consumer(filter(producer()))
 {% endhighlight %}
 
 ###生成器（Generator）###
@@ -45,47 +46,47 @@ consumer(filter(producer()))
 生成器实际上可以看作只有生产者的生产者-消费者模型。生成器的主要用途就是实现迭代器（Iterator）。需要提到的一点就是目前大多数语言提供的生成器都是非栈式（Stackful）的，即不能在嵌套调用中直接yield，这样在实现复杂的生成器时会非常麻烦。比如要实现一个二叉树的先序遍历，先看Lua实现：
 
 {% highlight lua linenos %}
-function preorder(node)
-	if node then
-		preorder(node.left)
-		coroutine.yield(node.key)
-		preorder(node.right)
+	function preorder(node)
+		if node then
+			preorder(node.left)
+			coroutine.yield(node.key)
+			preorder(node.right)
+		end
 	end
-end
 
--- create an iterator
-function preorder_iterator(tree)
-	return coroutine.wrap(function()
-		preorder(tree)
-		return nil
-	end)
-end
+	-- create an iterator
+	function preorder_iterator(tree)
+		return coroutine.wrap(function()
+			preorder(tree)
+			return nil
+		end)
+	end
 {% endhighlight %}
 
 简洁而直接，因为Lua的协程是完全协程，允许在嵌套调用中yield。如果用C#实现：
 
 {% highlight csharp linenos %}
-public static class BinaryTree<T>
-{
-	static IEnumerable<T> Preorder(Node<T> node)
+	public static class BinaryTree<T>
 	{
-		if (node != null) {
-			foreach (var key in Preorder(node.left))
-				yield return key;
+		static IEnumerable<T> Preorder(Node<T> node)
+		{
+			if (node != null) {
+				foreach (var key in Preorder(node.left))
+					yield return key;
 
-			yield return node.key;
+				yield return node.key;
 
-			foreach (var key in Preorder(node.right))
+				foreach (var key in Preorder(node.right))
+					yield return key;
+			}
+		}
+
+		public static IEnumerable<T> PreorderIterator(Node<T> tree)
+		{
+			foreach (var key in Preorder(tree))
 				yield return key;
 		}
 	}
-
-	public static IEnumerable<T> PreorderIterator(Node<T> tree)
-	{
-		foreach (var key in Preorder(tree))
-			yield return key;
-	}
-}
 {% endhighlight %}
 
 可以看到，在递归的每一级都需要一个迭代块向上一级yield，直到最顶层。如果生成器更加复杂，比如需要调用一系列辅助方法，那么在每个调用点处都要增加机械的yield代码。
@@ -97,52 +98,52 @@ public static class BinaryTree<T>
 例如用Lua实现一个模式匹配系统，支持匹配常量、可选和序列三种模式的组合：
 
 {% highlight lua linenos %}
--- matching a string literal
-function prim(str)
-	return function(S, pos)
-		local len = string.len(str)
-		if string.sub(S, pos, pos+len-1) == str then
-			coroutine.yield(pos + len)
+	-- matching a string literal
+	function prim(str)
+		return function(S, pos)
+			local len = string.len(str)
+			if string.sub(S, pos, pos+len-1) == str then
+				coroutine.yield(pos + len)
+			end
 		end
 	end
-end
 
--- alternative patterns (disjunction)
-function alt(patt1, patt2)
-	return function(S, pos)
-		patt1(S, pos)
-		patt2(S, pos)
-	end
-end
-
--- sequence of sub-patterns (conjuction)
-function seq(patt1, patt2)
-	return function(S, pos)
-		local btpoint = coroutine.wrap(function()
+	-- alternative patterns (disjunction)
+	function alt(patt1, patt2)
+		return function(S, pos)
 			patt1(S, pos)
-		end)
-		for npos in btpoint do
-			patt2(S, npos)
+			patt2(S, pos)
 		end
 	end
-end
 
-function match(S, patt)
-	local len = string.len(S)
-	local m = coroutine.wrap(function() patt(S, 1) end)
-	for pos in m do
-		if pos == len+1 then
-			return true
+	-- sequence of sub-patterns (conjuction)
+	function seq(patt1, patt2)
+		return function(S, pos)
+			local btpoint = coroutine.wrap(function()
+				patt1(S, pos)
+			end)
+			for npos in btpoint do
+				patt2(S, npos)
+			end
 		end
 	end
-	return false
-end
+
+	function match(S, patt)
+		local len = string.len(S)
+		local m = coroutine.wrap(function() patt(S, 1) end)
+		for pos in m do
+			if pos == len+1 then
+				return true
+			end
+		end
+		return false
+	end
 {% endhighlight %}
 
 使用时形如("abc"|"de")."x"的目标可以定义如下：
 
 {% highlight lua %}
-patt = seq(alt(prim("abc"), prim("de")), prim("x"))
+	patt = seq(alt(prim("abc"), prim("de")), prim("x"))
 {% endhighlight %}
 
 在进行匹配时这个目标被封装到一个协程中，通过循环逐一尝试匹配每个子目标。实现中的每个模式函数接受目标字符串和起始位置作为参数，匹配成功时yield下一个位置给后续匹配，无法继续匹配时返回nil。我尝试了一下使用C#来实现上述代码，得到的编译错误是：不能在匿名方法或lambda表达式内部使用yield语句。于是我便没有继续了，因为已经可以想象最后的完成代码会有多臃肿。这是C#生成器的又一使用限制，的确非常影响表达力。
@@ -154,80 +155,80 @@ patt = seq(alt(prim("abc"), prim("de")), prim("x"))
 由于抢占式调度执行顺序无法确定的特点，使用线程时需要非常小心地处理同步问题，而协程完全不存在这个问题（事件驱动和异步程序也有同样的优点），因此非常容易使用。下面是一段Lua实现多任务的代码：
 
 {% highlight lua linenos %}
--- list of "live" tasks
-tasks = {}
+	-- list of "live" tasks
+	tasks = {}
 
--- create a task
-function create_task(f)
-	local co = coroutine.wrap(function() f(); return "ended" end)
-	table.insert(tasks, co)
-end
+	-- create a task
+	function create_task(f)
+		local co = coroutine.wrap(function() f(); return "ended" end)
+		table.insert(tasks, co)
+	end
 
--- task dispatcher
-function dispatcher()
-	while true do
-		local n = table.getn(tasks)
-		if n == 0 then break end -- no more tasks to run
-		for i = 1, n do
-			local status = tasks[i]()
-			if status == "ended" then
-				table.remove(tasks, i)
-				break
+	-- task dispatcher
+	function dispatcher()
+		while true do
+			local n = table.getn(tasks)
+			if n == 0 then break end -- no more tasks to run
+			for i = 1, n do
+				local status = tasks[i]()
+				if status == "ended" then
+					table.remove(tasks, i)
+					break
+				end
 			end
 		end
 	end
-end
 {% endhighlight %}
 
 协作式多任务的缺点之一是进行阻塞（Blocking）操作如IO时会阻塞掉整个程序，解决方案是提供一个辅助函数，初始化IO操作之后如果操作不能立即完成就挂起当前协程，[Programming in Lua](http://book.douban.com/subject/3076942/)中给出了一个多任务下载的例子：
 
 {% highlight lua linenos %}
-function download(host, file)
-	local c = assert(socket.connect(host, 80))
-	local count = 0
-	c:send("GET " .. file .. " HTTP/1.0\r\n\r\n")
-	while true do
-		local s, status, partial = receive(c)
-		count = count + #(s or partial)
-		if status == "closed" then break end
-	end
-	c:close()
-	print(file, count)
-end
-
-function receive(connection)
-	connection:settimeout(0)
-	local s, status, partial = connection:receive(2^10)
-	if status == "timeout" then
-		coroutine.yield(connection)
-	end
-	return s or partial, status
-end
-
-threads = {}
-
-function get(host, file)
-	local co = coroutine.create(function()
-		download(host, file)
-	end)
-	table.insert(threads, co)
-end
-
-function dispatch()
-	local i = 1
-	while true do
-		if threads[i] == nil then
-			if threads[1] == nil then break end
-			i = 1
+	function download(host, file)
+		local c = assert(socket.connect(host, 80))
+		local count = 0
+		c:send("GET " .. file .. " HTTP/1.0\r\n\r\n")
+		while true do
+			local s, status, partial = receive(c)
+			count = count + #(s or partial)
+			if status == "closed" then break end
 		end
-		local status, res = coroutine.resume(threads[i])
-		if not res then
-			table.remove(threads, i)
-		else
-			i = i + 1
+		c:close()
+		print(file, count)
+	end
+
+	function receive(connection)
+		connection:settimeout(0)
+		local s, status, partial = connection:receive(2^10)
+		if status == "timeout" then
+			coroutine.yield(connection)
+		end
+		return s or partial, status
+	end
+
+	threads = {}
+
+	function get(host, file)
+		local co = coroutine.create(function()
+			download(host, file)
+		end)
+		table.insert(threads, co)
+	end
+
+	function dispatch()
+		local i = 1
+		while true do
+			if threads[i] == nil then
+				if threads[1] == nil then break end
+				i = 1
+			end
+			local status, res = coroutine.resume(threads[i])
+			if not res then
+				table.remove(threads, i)
+			else
+				i = i + 1
+			end
 		end
 	end
-end
 {% endhighlight %}
 
 这个例子把每个下载任务放在一个协程中，通过settimeout(0)使获取操作不会阻塞，再由调度函数逐一唤醒协程执行，如果获取还未完成就挂起，直到所有下载完成。
