@@ -34,7 +34,6 @@ table {
 .highlight {
 	margin: 0;
 	padding: 0;
-	width: 660px;
 }
 .lineno {
 	color: #586E75;
@@ -49,6 +48,7 @@ code, pre {
 	overflow-y: hidden;
 }
 pre {
+	width: 650px;
 	padding: 0;
 	background: #002B36;
 }
@@ -100,7 +100,7 @@ br {
 #sidebar-left {
 }
 #sidebar-right {
-	width: 260px;  /* avs */
+	width: 270px;  /* avs */
 }
 
 #main {
