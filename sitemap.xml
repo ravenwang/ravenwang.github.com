@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
+    <url>
+        <loc>
+            http://ravenw.com/blog/2011/08/24/coroutine-part-1-defination-and-classification-of-coroutine
+        </loc>
+        <lastmod>2011-09-06T23:56:30+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ravenw.com/blog/2011/08/27/blog-with-jekyll</loc>
+        <lastmod>2011-09-06T23:56:30+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ravenw.com/blog/2011/09/01/coroutine-part-2-the-use-of-coroutines</loc>
+        <lastmod>2011-09-06T23:56:30+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ravenw.com/blog/2011/09/06/coroutine-part-3-coroutine-and-continuation</loc>
+        <lastmod>2011-09-06T23:56:30+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://ravenw.com/</loc>
+        <lastmod>2011-09-06T23:56:30+08:00</lastmod>
+    </url>
+</urlset>
