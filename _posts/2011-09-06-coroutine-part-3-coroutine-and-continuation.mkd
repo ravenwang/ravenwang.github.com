@@ -36,7 +36,7 @@ Continuation这个术语很多时候也用于表示First-class continuation。�
 
 基于First-class continuation很容易实现完全协程，主要思路是在切换协程时保存当前Continuation并调用目标协程的Continuation。以下是由[Marc De Scheemaecker](http://liber.sourceforge.net/coroutines.rb)基于Ruby call/cc实现的完全对称协程：
 
-{% highlight ruby %}
+{% highlight ruby linenos %}
 class Coroutine
 	def initialize(&block)
 		# Creates a coroutine. The associated block does not run yet.
@@ -106,7 +106,7 @@ end
 
 下面是Lua实现One-shot continuation的代码，首先实现一个完全对称协程：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 coro = {}
 coro.main = function() end
 coro.current = coro.main
@@ -137,9 +137,9 @@ function coro.transfer(co, val)
 end
 {% endhighlight %}
 
-然后是call1cc：
+然后是call/1cc：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 function call1cc(f)
 	-- save the continuation "creator"
 	local ccoro = coro.current
@@ -177,7 +177,7 @@ One-shot Continuation只是对Continuation进行了限制以简化实现，它�
 
 Subcontinuation与完全非对称协程十分相像，把一个完全非对称协程看作一个独立的子运算，调用子运算的控制器相当于挂起协程，调用Subcontinuation相当于恢复协程。
 
-{% highlight lua %}
+{% highlight lua linenos %}
 function spawn(f)
 	local controller, valid_controller, shot, subK
 
