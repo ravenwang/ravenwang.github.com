@@ -4,7 +4,6 @@
  ** HTML elements
  */
 a, a:link, a:active, a:visited {
-	font-weight: bold;
 	text-decoration: none;
 	color: #015FAB;
 }
@@ -48,7 +47,7 @@ code, pre {
 	overflow-y: hidden;
 }
 pre {
-	width: 650px;
+	width: 660px;
 	padding: 0;
 	background: #002B36;
 }
@@ -97,10 +96,8 @@ br {
 	vertical-align: top;
 	padding: 0 10px;
 }
-#sidebar-left {
-}
 #sidebar-right {
-	width: 270px;  /* avs */
+	width: 260px;
 }
 
 #main {
