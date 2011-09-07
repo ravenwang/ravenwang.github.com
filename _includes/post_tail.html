@@ -3,7 +3,7 @@
 		Category: <a href="/categories/{{ post.category | replace:' ','-' | downcase }}">{{ post.category }}</a> |
 
 		{% unless page == post %}
-		<a href="{{ post.url }}#disqus_thread" data-disqus-identifier="{{ post.id }}"></a> |
+		<a href="{{ post.url }}#disqus_thread" data-disqus-identifier="{{ post.id }}">View Comments</a> |
 		{% endunless %}
 
 		{% capture absolute_url %}http://{{ site.domain }}{{ post.url }}{% endcapture %}
