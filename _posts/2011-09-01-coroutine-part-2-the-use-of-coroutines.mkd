@@ -21,7 +21,7 @@ layout: post
 
 管道（Pipeline）也是由生产者-消费者模型扩展而来的，管道实际上是由一个生产者，加上一个或多个过滤器（Filter），再加上一个最终的消费者组成的生产者-消费者链。其中过滤器既是生产者又是消费者。以下是由Lua实现的过滤器：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 function filter(ant)
 	return coroutine.wrap(function())
 		while true do
@@ -44,7 +44,7 @@ consumer(filter(producer()))
 
 生成器实际上可以看作只有生产者的生产者-消费者模型。生成器的主要用途就是实现迭代器（Iterator）。需要提到的一点就是目前大多数语言提供的生成器都是非栈式（Stackful）的，即不能在嵌套调用中直接yield，这样在实现复杂的生成器时会非常麻烦。比如要实现一个二叉树的先序遍历，先看Lua实现：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 function preorder(node)
 	if node then
 		preorder(node.left)
@@ -64,7 +64,7 @@ end
 
 简洁而直接，因为Lua的协程是完全协程，允许在嵌套调用中yield。如果用C#实现：
 
-{% highlight csharp %}
+{% highlight csharp linenos %}
 public static class BinaryTree<T>
 {
 	static IEnumerable<T> Preorder(Node<T> node)
@@ -96,7 +96,7 @@ public static class BinaryTree<T>
 
 例如用Lua实现一个模式匹配系统，支持匹配常量、可选和序列三种模式的组合：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 -- matching a string literal
 function prim(str)
 	return function(S, pos)
@@ -153,7 +153,7 @@ patt = seq(alt(prim("abc"), prim("de")), prim("x"))
 
 由于抢占式调度执行顺序无法确定的特点，使用线程时需要非常小心地处理同步问题，而协程完全不存在这个问题（事件驱动和异步程序也有同样的优点），因此非常容易使用。下面是一段Lua实现多任务的代码：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 -- list of "live" tasks
 tasks = {}
 
@@ -181,7 +181,7 @@ end
 
 协作式多任务的缺点之一是进行阻塞（Blocking）操作如IO时会阻塞掉整个程序，解决方案是提供一个辅助函数，初始化IO操作之后如果操作不能立即完成就挂起当前协程，[Programming in Lua](http://book.douban.com/subject/3076942/)中给出了一个多任务下载的例子：
 
-{% highlight lua %}
+{% highlight lua linenos %}
 function download(host, file)
 	local c = assert(socket.connect(host, 80))
 	local count = 0

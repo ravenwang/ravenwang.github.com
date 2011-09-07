@@ -26,7 +26,7 @@ layout: post
 
 来看Wiki举出的，也是解释协程时最常见的生产-消费者模型的例子：
 
-{% highlight scala %}
+{% highlight scala linenos %}
 var q := new queue
 
 coroutine produce
@@ -46,7 +46,7 @@ coroutine consume
 
 这个例子中容易让人产生疑惑的一点就是yield的使用，它与我们通常所见的yield指令不同。这是因为我们常见的yield指令大都是基于生成器（Generator）这一概念的。下面是基于生成器的生产-消费者模型实现（依然来自Wiki）：
 
-{% highlight scala %}
+{% highlight scala linenos %}
 var q := new queue
 
 generator produce
