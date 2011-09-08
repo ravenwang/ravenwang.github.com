@@ -37,64 +37,64 @@ Continuation这个术语很多时候也用于表示First-class continuation。�
 基于First-class continuation很容易实现完全协程，主要思路是在切换协程时保存当前Continuation并调用目标协程的Continuation。以下是由[Marc De Scheemaecker](http://liber.sourceforge.net/coroutines.rb)基于Ruby call/cc实现的完全对称协程：
 
 {% highlight ruby linenos %}
-	class Coroutine
-		def initialize(&block)
-			# Creates a coroutine. The associated block does not run yet.
-			@started = false
-			@finished = false
-			@block = Proc::new {
-				callcc{|@cc|}
-				block.call
-				@finished = true
-				@started = false
-			}
-		end
+class Coroutine
+    def initialize(&block)
+        # Creates a coroutine. The associated block does not run yet.
+        @started = false
+        @finished = false
+        @block = Proc::new {
+            callcc{|@cc|}
+            block.call
+            @finished = true
+            @started = false
+        }
+    end
 
-		def start
-			# Starts the block. It's an error to call this method on a coroutine
-			# that has already been started.
-			raise "Block already started" if @started
+    def start
+        # Starts the block. It's an error to call this method on a coroutine
+        # that has already been started.
+        raise "Block already started" if @started
 
-			@started = true
-			@block.call
-		end
+        @started = true
+        @block.call
+    end
 
-		def switch(coroutine)
-			# Switches context to another coroutine. You need to call this method
-			# on the current coroutine.
-			switch = true
+    def switch(coroutine)
+        # Switches context to another coroutine. You need to call this method
+        # on the current coroutine.
+        switch = true
 
-			if not coroutine.finished? then
-				callcc{|@cc|}
+        if not coroutine.finished? then
+            callcc{|@cc|}
 
-				if switch then
-					switch = false
+            if switch then
+                switch = false
 
-					if coroutine.running? then
-						coroutine.continuation.call
-					else
-						coroutine.start
-					end
-				end
-			end
-		end
+                if coroutine.running? then
+                    coroutine.continuation.call
+                else
+                    coroutine.start
+                end
+            end
+        end
+    end
 
-		def running?
-			# Returns true if the associated block is started and has not yet
-			# finished
-			@started and not @finished
-		end
+    def running?
+        # Returns true if the associated block is started and has not yet
+        # finished
+        @started and not @finished
+    end
 
-		def finished?
-			# Returns true if the associated block is finished
-			@finished
-		end
+    def finished?
+        # Returns true if the associated block is finished
+        @finished
+    end
 
-		def continuation
-			# Returns the associated continuation object
-			@cc
-		end
-	end
+    def continuation
+        # Returns the associated continuation object
+        @cc
+    end
+end
 {% endhighlight %}
 
 ###One-shot continuation###
@@ -106,64 +106,64 @@ Continuation这个术语很多时候也用于表示First-class continuation。�
 下面是Lua实现One-shot continuation的代码，首先实现一个完全对称协程：
 
 {% highlight lua linenos %}
-	coro = {}
-	coro.main = function() end
-	coro.current = coro.main
+coro = {}
+coro.main = function() end
+coro.current = coro.main
 
-	-- function to create a new coroutine
-	function coro.create(f)
-		local co = function(val)
-			f(val)
-			error("coroutine ended")
-		end
-		return coroutine.wrap(co)
-	end
+-- function to create a new coroutine
+function coro.create(f)
+    local co = function(val)
+        f(val)
+        error("coroutine ended")
+    end
+    return coroutine.wrap(co)
+end
 
-	-- function to transfer control to a coroutine
-	function coro.transfer(co, val)
-		if coro.current == coro.main then
-			return coroutine.yield(co, val)
-		end
+-- function to transfer control to a coroutine
+function coro.transfer(co, val)
+    if coro.current == coro.main then
+        return coroutine.yield(co, val)
+    end
 
-		-- dispatching loop
-		while true do
-			coro.current = co
-			if co == coro.main then
-				return val
-			end
-			co, val = co(val)
-		end
-	end
+    -- dispatching loop
+    while true do
+        coro.current = co
+        if co == coro.main then
+            return val
+        end
+        co, val = co(val)
+    end
+end
 {% endhighlight %}
 
 然后是call/1cc：
 
 {% highlight lua linenos %}
-	function call1cc(f)
-		-- save the continuation "creator"
-		local ccoro = coro.current
-		-- invoking the continuation transfers control
-		-- back to its creator
-		local cont = function(val)
-			if ccoro == nil then
-				error("one shot continuation called twice")
-			end
-			coro.transfer(ccoro, val)
-		end
-		-- when a continuation is captured,
-		-- a new coroutine is created and dispatched
-		local val
-		val = coro.transfer(coro.create(function()
-			local v = f(cont)
-			cont(v)
-		end))
-		-- when control is transfered back, the continuation
-		-- was "shot" and must be invalidated
-		ccoro = nil
-		-- the value passed to the continuation
-		-- is the return value of call1/cc
-		return val
-	end
+function call1cc(f)
+    -- save the continuation "creator"
+    local ccoro = coro.current
+    -- invoking the continuation transfers control
+    -- back to its creator
+    local cont = function(val)
+        if ccoro == nil then
+            error("one shot continuation called twice")
+        end
+        coro.transfer(ccoro, val)
+    end
+    -- when a continuation is captured,
+    -- a new coroutine is created and dispatched
+    local val
+    val = coro.transfer(coro.create(function()
+        local v = f(cont)
+        cont(v)
+    end))
+    -- when control is transfered back, the continuation
+    -- was "shot" and must be invalidated
+    ccoro = nil
+    -- the value passed to the continuation
+    -- is the return value of call1/cc
+    return val
+end
 {% endhighlight %}
 
 {% comment %}
@@ -177,51 +177,51 @@ One-shot Continuation只是对Continuation进行了限制以简化实现，它�
 Subcontinuation与完全非对称协程十分相像，把一个完全非对称协程看作一个独立的子运算，调用子运算的控制器相当于挂起协程，调用Subcontinuation相当于恢复协程。
 
 {% highlight lua linenos %}
-	function spawn(f)
-		local controller, valid_controller, shot, subK
+function spawn(f)
+    local controller, valid_controller, shot, subK
 
-		-- a coroutine represents a subcomputation
-		local subc = coroutine.wrap(function()
-			return f(controller), nil
-		end)
+    -- a coroutine represents a subcomputation
+    local subc = coroutine.wrap(function()
+        return f(controller), nil
+    end)
 
-		-- this function implements the subcomputation controller
-		function controller(fc)
-			if not valid_controller then error("invalid controller") end
-			shot = false
-			val = coroutine.yield(fc, controller)
-			shot = true
-			return val
-		end
+    -- this function implements the subcomputation controller
+    function controller(fc)
+        if not valid_controller then error("invalid controller") end
+        shot = false
+        val = coroutine.yield(fc, controller)
+        shot = true
+        return val
+    end
 
-		-- this function spawns/reinstates a subcomputation
-		function subK(v)
-			if shot then error("subcontinuation called twice") end
+    -- this function spawns/reinstates a subcomputation
+    function subK(v)
+        if shot then error("subcontinuation called twice") end
 
-			-- invoke a subcontinuation
-			valid_controller = true
-			local ret, c = subc(v)
-			valid_controller = false
+        -- invoke a subcontinuation
+        valid_controller = true
+        local ret, c = subc(v)
+        valid_controller = false
 
-			-- subcomputation terminated ?
-			if c == nil then return ret
+        -- subcomputation terminated ?
+        if c == nil then return ret
 
-				-- if the local controller was invoked, apply
-				-- the function to the subcontinuation
-			elseif c == controller then return ret(subK)
+            -- if the local controller was invoked, apply
+            -- the function to the subcontinuation
+        elseif c == controller then return ret(subK)
 
-				-- the invoked controller corresponds to
-				-- an outer subcomputation
-			else
-				val = coroutine.yield(ret, c)
-				return subK(val)
-			end
-		end
+            -- the invoked controller corresponds to
+            -- an outer subcomputation
+        else
+            val = coroutine.yield(ret, c)
+            return subK(val)
+        end
+    end
 
-		-- spawn the subcomputation
-		shot = false
-		return subK()
-	end
+    -- spawn the subcomputation
+    shot = false
+    return subK()
+end
 {% endhighlight %}
 
 {% endcomment %}
