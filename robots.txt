@@ -3,3 +3,4 @@ Disallow: /css
 Disallow: /images
 Disallow: /categories
 Disallow: /tags
+Allow: /
