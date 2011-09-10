@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
-		<title>{% if page.title %}{{ page.title | append: ' - ' }}{% endif %}{{ site.title }}</title>
+		<title>Tag: deployment - Indie 之路</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/ravenw" />
 		<link rel="stylesheet" type="text/css" href="/css/drupal.css" />
@@ -23,7 +23,7 @@
 
 	<body>
 		<div id="header">
-			<h1 class="site-name title"><a href="/">{{ site.title }}</a></h1>
+			<h1 class="site-name title"><a href="/">Indie 之路</a></h1>
 		</div>
 
 		<table id="content">
@@ -34,7 +34,17 @@
 					</div>
 				</td> -->
 				<td id="main">
-					{{ content }}
+					<h2 class="title">Tag: deployment</h2>
+
+<div class="node">
+	<ul>
+		
+		<li>27 Aug 2011 <a href="/blog/2011/08/27/blog-with-jekyll">基于Jekyll搭建自己的博客</a></li>
+		
+	</ul>
+</div>
+
+
 
 				</td>
 				<td id="sidebar-right">
@@ -53,9 +63,15 @@
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									{% for post in site.posts limit: 5 %}
-									<li><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
-									{% endfor %}
+									
+									<li><a href="/blog/2011/09/06/coroutine-part-3-coroutine-and-continuation" title="协程（三）协程与Continuation">协程（三）协程与Continuation</a></li>
+									
+									<li><a href="/blog/2011/09/01/coroutine-part-2-the-use-of-coroutines" title="协程（二）协程的应用">协程（二）协程的应用</a></li>
+									
+									<li><a href="/blog/2011/08/27/blog-with-jekyll" title="基于Jekyll搭建自己的博客">基于Jekyll搭建自己的博客</a></li>
+									
+									<li><a href="/blog/2011/08/24/coroutine-part-1-defination-and-classification-of-coroutine" title="协程（一）协程的定义与分类">协程（一）协程的定义与分类</a></li>
+									
 									
 								</ul>
 							</div>
@@ -67,9 +83,11 @@
 						<div class="content">
 							<div class="item-list">
 								<ul>
-									{% for cat in site.categories %}
-									<li><a href="/blog/categories/{{ cat | first | replace:' ','-' | downcase }}">{{ cat | first }}</a></li>
-									{% endfor %}
+									
+									<li><a href="/blog/categories/utilities">Utilities</a></li>
+									
+									<li><a href="/blog/categories/programming-language">Programming Language</a></li>
+									
 								</ul>
 							</div>
 						</div>
@@ -80,9 +98,37 @@
 						<div class="content">
 							<div class="item-list tag-cloud">
 								<ul>
-									{% for tag in site.tags %}
-									<li><a href="/blog/tags/{{ tag | first | replace:' ','-' | downcase }}" name="{{ tag | first | replace:' ','-' | downcase }}">{{ tag | first }}</a></li>
-									{% endfor %}
+									
+									<li><a href="/blog/tags/jekyll" name="jekyll">jekyll</a></li>
+									
+									<li><a href="/blog/tags/plugin" name="plugin">plugin</a></li>
+									
+									<li><a href="/blog/tags/lua" name="lua">lua</a></li>
+									
+									<li><a href="/blog/tags/fiber" name="fiber">fiber</a></li>
+									
+									<li><a href="/blog/tags/continuation" name="continuation">continuation</a></li>
+									
+									<li><a href="/blog/tags/github" name="github">github</a></li>
+									
+									<li><a href="/blog/tags/yield" name="yield">yield</a></li>
+									
+									<li><a href="/blog/tags/coroutine" name="coroutine">coroutine</a></li>
+									
+									<li><a href="/blog/tags/theory" name="theory">theory</a></li>
+									
+									<li><a href="/blog/tags/multitasking" name="multitasking">multitasking</a></li>
+									
+									<li><a href="/blog/tags/iterator" name="iterator">iterator</a></li>
+									
+									<li><a href="/blog/tags/callcc" name="callcc">callcc</a></li>
+									
+									<li><a href="/blog/tags/ruby" name="ruby">ruby</a></li>
+									
+									<li><a href="/blog/tags/generator" name="generator">generator</a></li>
+									
+									<li><a href="/blog/tags/deployment" name="deployment">deployment</a></li>
+									
 								</ul>
 							</div>
 						</div>

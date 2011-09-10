@@ -5,6 +5,6 @@ pygments: true
 regeneration: true
 lsi: true
 permalink: /blog/:year/:month/:day/:title
-category_dir: ../categories
-tag_dir: ../tags
+category_dir: ../blog/categories
+tag_dir: ../blog/tags
 tag_title_prefix: 'Tag: '

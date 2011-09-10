@@ -1,6 +1,6 @@
 User-agent: *
 Disallow: /css/
 Disallow: /images/
-Disallow: /categories/
-Disallow: /tags/
+Disallow: /blog/categories/
+Disallow: /blog/tags/
 Allow: /
