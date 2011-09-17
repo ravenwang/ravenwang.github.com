@@ -166,66 +166,6 @@ function call1cc(f)
 end
 {% endhighlight %}
 
-{% comment %}
-
-###One-shot subcontinuation###
-
-One-shot Continuation只是对Continuation进行了限制以简化实现，它依然难以使用，和标准Continuation一样，只要应用稍微复杂，它们就会把程序的控制流变得混乱无比。这其中一个主要原因是它们表达的是运算的**全部**剩余部分。出于限制Continuation的作用范围和它对控制流的影响，出现了几个基于[Partial continuation](http://en.wikipedia.org/wiki/Partial_continuation)的概念。Partial continuation表示Continuation的一个“切片”，在调用时它并不终止当前Continuation，而是表现得像函数一样，Partial continuation是[可组合的](http://en.wikipedia.org/wiki/Function_composition_%28computer_science%29)。
-
-[Subcontinuation](http://cs.au.dk/~hosc/local/LaSC-7-1-pp83-110.pdf)是一种Partial continuation，它表示一个**独立的子运算**在其指定位置的剩余部分。Subcontinuation提供一个spawn操作，该操作接受一个过程（子运算）参数，并且向此过程传入一个控制器。如果在过程中未调用控制器，则过程的返回值作为spawn的结果；如果调用了控制器，它会捕获调用点处的Continuation连同当前子运算的根一起作为一个Subcontinuation。控制器也接受一个过程参数（另一个子运算），这个过程接受前面捕获的Subcontinuation作为参数。当控制器再次被调用时会恢复子运算的执行，但只有在控制器的根包含在整个程序的当前Continuation中时才有效，即控制器必须在它所捕获的Subcontinuation被调用时才允许再次调用。
-
-Subcontinuation与完全非对称协程十分相像，把一个完全非对称协程看作一个独立的子运算，调用子运算的控制器相当于挂起协程，调用Subcontinuation相当于恢复协程。
-
-{% highlight lua linenos %}
-function spawn(f)
-    local controller, valid_controller, shot, subK
-
-    -- a coroutine represents a subcomputation
-    local subc = coroutine.wrap(function()
-        return f(controller), nil
-    end)
-
-    -- this function implements the subcomputation controller
-    function controller(fc)
-        if not valid_controller then error("invalid controller") end
-        shot = false
-        val = coroutine.yield(fc, controller)
-        shot = true
-        return val
-    end
-
-    -- this function spawns/reinstates a subcomputation
-    function subK(v)
-        if shot then error("subcontinuation called twice") end
-
-        -- invoke a subcontinuation
-        valid_controller = true
-        local ret, c = subc(v)
-        valid_controller = false
-
-        -- subcomputation terminated ?
-        if c == nil then return ret
-
-            -- if the local controller was invoked, apply
-            -- the function to the subcontinuation
-        elseif c == controller then return ret(subK)
-
-            -- the invoked controller corresponds to
-            -- an outer subcomputation
-        else
-            val = coroutine.yield(ret, c)
-            return subK(val)
-        end
-    end
-
-    -- spawn the subcomputation
-    shot = false
-    return subK()
-end
-{% endhighlight %}
-
-{% endcomment %}
-
 ###效率问题###
 
 可以看到，Continuation可以实现协程，同时协程也可以实现One-shot continuation，但这两种相反实现的效率并不相同。
