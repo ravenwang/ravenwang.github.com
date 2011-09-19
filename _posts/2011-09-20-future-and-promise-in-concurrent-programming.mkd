@@ -110,6 +110,6 @@ Task可以在创建时就开始执行，或在之后调用Task.Start()或获取T
 
 * 阻塞当前线程直到Future绑定完毕，通常会允许设置一个超时时间。
 * 不允许同步获取Future的值，试图获取时会得到一个错误信号，如抛出一个异常。
-* 如果Future已经绑定则获取成功，否则得到错误信号。这会引入不确定性和潜在的[争用条件（Race condition）](http://en.wikipedia.org/wiki/Race_conditions)，通常不会这么设计。
+* 如果Future已经绑定则获取成功，否则得到错误信号。这会引入不确定性和潜在的争用条件，通常不会这么设计。
 
 目前支持并发编程的语言基本上都提供了Future的实现，如Java的java.util.concurrent.Future，.NET TPL中的Task，Python的[pythonfutures](http://code.google.com/p/pythonfutures/)，Ruby的[Promise](http://rubygems.org/gems/promise) gem等，JavaScript也有多个提供了Future实现的库。
