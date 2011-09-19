@@ -1,0 +1,115 @@
+---
+title: 并发编程中的Future和Promise
+category: Programming
+tags: [concurrent, future, promise, continuation, c#, apm, async, await]
+layout: post
+---
+
+[参考Wiki](http://en.wikipedia.org/wiki/Futures_and_promises)，Future，Promise或Delay是用于并发编程的一种同步构造。它们表示一个对象，这个对象用来作为一次计算的结果的代理，而该结果被初始化为未知，因为这个对象产生时计算还没有结束（或还没有开始）。
+
+Future是对**异步过程调用的结果**的抽象，它并不关心具体的异步机制。这样无论是线程、网络、IO或者RPC，只要是异步过程调用，都可以通过Future的概念统一处理。此外提供基于Future的接口可以简化代码编写，以顺序的方式编写异步代码。
+
+在.NET提供的异步编程模型（APM）中使用的IAsyncResult接口某种程度上就是Future的概念，在APM中，调用异步操作后立即获得一个IAsyncResult引用，之后可以通过阻塞、轮询或回调方法获取异步结果。举个例子：
+
+{% highlight csharp linenos %}
+using System;
+using System.Threading;
+
+class Program
+{
+    static string LongTask()
+    {
+        Thread.Sleep(5000);
+        return "long_task_result";
+    }
+
+    static void Main()
+    {
+        var asyncTask = new Func<string>(LongTask);
+
+        Console.WriteLine("Start async task.");
+        var asyncResult = asyncTask.BeginInvoke(null, null);
+
+        Console.WriteLine("Perform other tasks.");
+
+        var result = asyncTask.EndInvoke(asyncResult);
+        Console.WriteLine("Obtained task result: " + result);
+    }
+}
+{% endhighlight %}
+
+可以看到在使用IAsyncResult时完全不用关心任何线程问题，实际上在异步IO调用时不会占用任何线程。上面的代码在调用EndInvoke时会阻塞线程直到异步任务返回，通常在执行异步操作时并不希望发生阻塞，而是在异步操作结束后自动执行后续处理，对这个需求APM提供了回调方法：
+
+{% highlight csharp linenos %}
+using System;
+using System.Threading;
+
+class Program
+{
+    static string LongTask()
+    {
+        Thread.Sleep(5000);
+        return "long_task_result";
+    }
+
+    static void Main()
+    {
+        var asyncTask = new Func<string>(LongTask);
+
+        Console.WriteLine("Start async task.");
+        var asyncResult = asyncTask.BeginInvoke(ar => {
+            var result = asyncTask.EndInvoke(ar);
+            Console.WriteLine("Obtained task result: " + result);
+        }, null);
+
+        Console.WriteLine("Perform other tasks.");
+
+        asyncResult.AsyncWaitHandle.WaitOne();
+    }
+}
+{% endhighlight %}
+
+Future只表达了一个返回结果的异步过程调用，而完整的异步操作往往还包括对异步调用的结果进行后续处理的过程，这在APM以及.NET 2.0中新增的EAP模式中都是使用回调来完成的，实际上这个后续处理过程使用[Continuation](/blog/2011/09/06/coroutine-part-3-coroutine-and-continuation)来表达非常合适。在.NET 4.0的任务并行库（TPL）中，由Task<T\>类更加完整地实现了Future的概念，并结合了Continuation用于处理后续任务。现在上面的代码可以写成这样：
+
+{% highlight csharp linenos %}
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+class Program
+{
+    static string LongTask()
+    {
+        Thread.Sleep(5000);
+        return "long_task_result";
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("Start async task.");
+        var asyncTask = Task<string>.Factory.StartNew(LongTask);
+
+        var continuation = asyncTask.ContinueWith(task => {
+            Console.WriteLine("Obtained task result: " + task.Result);
+        });
+
+        Console.WriteLine("Perform other tasks.");
+
+        continuation.Wait();
+    }
+}
+{% endhighlight %}
+
+这样整个流程写起来感觉“顺序”多了，C# 5提供的async和await关键字就是在此基础上由编译器负责生成Task和Continuation代码来为你自动封装这一切，可以几乎完全以顺序的方式编写异步代码。关于C# 5中新的异步编程方式，可以参考老赵（[@jeffz_cn](http://twitter.com/jeffz_cn)）的[PDC 2010：C#与Visual Basic的未来](http://blog.zhaojie.me/2010/10/pdc2010-the-future-of-csharp-and-vb-by-anders-hejlsberg-1.html)系列文章。
+
+Task可以在创建时就开始执行，或在之后调用Task.Start()或获取Task.Result时才开始执行，这称为Lazy Future。上面代码中的continuation也是一个Task，这样就可以把一系列的Task组合起来形成一个异步任务链，这称为Future pipeline或Call-stream。利用Future pipeline可以减少RPC中远程调用的次数从而提高效率。
+
+在异步过程计算完成之后设置Future的值的过程称为绑定（Binding）或Resolving，一般情况下会在计算完成时或在调用获取值的方法（Task.Result）时自动执行绑定。某些Future实现出于权限考虑会对绑定做出限制，如[C++11](http://en.wikipedia.org/wiki/C%2B%2B11#Threading_facilities)中的std::future提供的是一个只读视图（Read-only view），由对应的std::promise执行绑定；在[Alice ML](http://en.wikipedia.org/wiki/Alice_(programming_language\))中，可以设置一个只能由特定线程进行绑定的Future。
+
+在同步获取Future的值时也有多种设计选择：
+
+* 阻塞当前线程直到Future绑定完毕，通常会允许设置一个超时时间。
+* 不允许同步获取Future的值，试图获取时会得到一个错误信号，如抛出一个异常。
+* 如果Future已经绑定则获取成功，否则得到错误信号。这会引入不确定性和潜在的[争用条件（Race condition）](http://en.wikipedia.org/wiki/Race_conditions)，通常不会这么设计。
+
+目前支持并发编程的语言基本上都提供了Future的实现，如Java的java.util.concurrent.Future，.NET TPL中的Task，Python的[pythonfutures](http://code.google.com/p/pythonfutures/)，Ruby的[Promise](http://rubygems.org/gems/promise) gem等，JavaScript也有多个提供了Future实现的库。
