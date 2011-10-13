@@ -1,6 +1,6 @@
 ---
 title: 并发编程中的Future和Promise
-category: Programming
+category: Programming Language
 tags: [concurrent, future, promise, continuation, c#, apm, async, await]
 layout: post
 ---
