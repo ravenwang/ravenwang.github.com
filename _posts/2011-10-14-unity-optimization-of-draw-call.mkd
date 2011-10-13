@@ -1,0 +1,23 @@
+---
+title: Unity性能优化之Draw Call
+category: Unity
+tags: [unity, optimization, draw-call, draw-call-batching]
+layout: post
+---
+
+Unity（或者说基本所有图形引擎）生成一帧画面的处理过程大致可以这样简化描述：引擎首先经过简单的可见性测试，确定摄像机可以看到的物体，然后把这些物体的顶点（包括本地位置、法线、UV等），索引（顶点如何组成三角形），变换（就是物体的位置、旋转、缩放、以及摄像机位置等），相关光源，纹理，渲染方式（由材质/Shader决定）等数据准备好，然后通知图形API——或者就简单地看作是通知GPU——开始绘制，GPU基于这些数据，经过一系列运算，在屏幕上画出成千上万的三角形，最终构成一幅图像。
+
+在Unity中，每次引擎准备数据并通知GPU的过程称为一次Draw Call。这一过程是逐个物体进行的，对于每个物体，不只GPU的渲染，引擎重新设置材质/Shader也是一项非常耗时的操作。因此每帧的Draw Call次数是一项非常重要的性能指标，对于iOS来说应尽量控制在20次以内，这个值可以在编辑器的Statistic窗口看到。
+
+Unity内置了[Draw Call Batching](http://unity3d.com/support/documentation/Manual/iphone-DrawCall-Batching.html)技术，从名字就可以看出，它的主要目标就是在一次Draw Call中批量处理多个物体。只要物体的变换和材质相同，GPU就可以按完全相同的方式进行处理，即可以把它们放在一个Draw Call中。Draw Call Batching技术的核心就是在可见性测试之后，检查所有要绘制的物体的材质，把相同材质的分为一组（一个Batch），然后把它们组合成一个物体（统一变换），这样就可以在一个Draw Call中处理多个物体了（实际上是组合后的一个物体）。
+
+但Draw Call Batching存在一个缺陷，就是它需要把一个Batch中的所有物体组合到一起，相当于创建了一个与这些物体加起来一样大的物体，与此同时就需要分配相应大小的内存。这不仅会消耗更多内存，还需要消耗CPU时间。特别是对于移动的物体，每一帧都得重新进行组合，这就需要进行一些权衡，否则得不偿失。但对于静止不动的物体来说，只需要进行一次组合，之后就可以一直使用，效率要高得多。
+
+Unity提供了Dynamic Batching和Static Batching两种方式。Dynamic Batching是完全自动进行的，不需要也无法进行任何干预，对于顶点数在300以内的可移动物体，只要使用相同的材质，就会组成Batch。Static Batching则需要把静止的物体标记为Static，然后无论大小，都会组成Batch。如前文所说，Static Batching显然比Dynamic Batching要高效得多，于是，Static Batching功能是收费的……
+
+要有效利用Draw Call Batching，首先是尽量减少场景中使用的材质数量，即尽量共享材质，对于仅纹理不同的材质可以把纹理组合到一张更大的纹理中（称为Texture Atlasing）。然后是把不会移动的物体标记为Static。此外还可以通过CombineChildren脚本（Standard Assets/Scripts/Unity Scripts/CombineChildren）手动把物体组合在一起，但这个脚本会影响可见性测试，因为组合在一起的物体始终会被看作一个物体，从而会增加GPU要处理的几何体数量，因此要小心使用。
+
+对于复杂的静态场景，还可以考虑自行设计遮挡剔除算法，减少可见的物体数量同时也可以减少Draw Call。
+
+总之，理解Draw Call和Draw Call Batching原理，根据场景特点设计相应的方案来尽量减少Draw Call次数才是王道，其它方面亦然。
+
