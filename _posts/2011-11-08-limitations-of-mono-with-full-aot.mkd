@@ -1,0 +1,28 @@
+---
+title: Mono在Full AOT模式下的限制
+category: Mono
+tags: [mono, jit, aot, unity]
+layout: post
+---
+
+调试时遇到一个Mono运行时异常：
+
+> ExecutionEngineException: Attempting to JIT compile method '...' while running with --aot-only.
+
+最后发现原因是使用了泛型接口，导致Mono需要JIT编译，但在iOS平台中，Mono是以[Full AOT](http://http://www.mono-project.com/AOT#Full_AOT)模式运行的，无法使用JIT引擎，于是引发了这个异常。
+
+Mono的AOT和.NET的Ngen一样，都是通过提前编译来减少JIT的工作，但默认情况下AOT并不编译所有IL代码，而是在优化和JIT之间取得一个平衡。由于iOS平台禁止JIT编译，于是Mono在iOS上需要Full AOT编译和运行。即预先对程序集中的所有IL代码进行AOT编译生成一个本地代码映像，然后在运行时直接加载这个映像而不再使用JIT引擎。目前由于技术或实现上的原因在使用Full AOT时有一些限制，具体可以参考[MonoTouch的文档](http://docs.xamarin.com/ios/about/limitations#.NET.c2.a0API.c2.a0Limitations)，这里提几条常见的：
+
+* 不支持泛型虚方法，因为对于泛型代码，Mono通过静态分析以确定要实例化的类型并生成代码，但静态分析无法确定运行时实际调用的方法（C++也因此不支持虚模版函数）。
+* 不支持对泛型类的P/Invoke。
+* 目前不能使用反射中的Property.SetInfo给非空类型赋值。
+* 值类型作为Dictionary的Key时会有问题，实际上实现了IEquatable\<T\>的类型都会有此问题，因为Dictionary的默认构造函数会使用EqualityComparer\<TKey\>.Default作为比较器，而对于实现了IEquatable\<T\>的类型，EqualityComparer\<TKey\>.Default要通过反射来实例化一个实现了IEqualityComparer\<TKey\>的类（可以参考[EqualityComparer\<T\>的实现](https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Collections.Generic/EqualityComparer.cs)）。
+解决方案是自己实现一个IEqualityComparer\<TKey\>，然后使用Dictionary\<TKey, TValue\>(IEqualityComparer\<TKey\>)构造器创建Dictionary实例。
+* 由于不允许动态生成代码，不允许使用System.Reflection.Emit，不允许动态创建类型。
+* 由于不允许使用System.Reflection.Emit，无法使用DLR及基于DLR的任何语言。
+* 不要混淆了Reflection.Emit和反射，所有反射的API均可用。
+
+
+
+
+
