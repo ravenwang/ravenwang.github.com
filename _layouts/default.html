@@ -68,7 +68,7 @@
 							<div class="item-list">
 								<ul>
 									{% for cat in site.categories %}
-									<li><a href="/blog/categories/{{ cat | first | replace:' ','-' | downcase }}">{{ cat | first }}</a></li>
+									<li><a href="/blog/categories/{{ cat | first | replace:' ','-' | downcase }}/">{{ cat | first }}</a></li>
 									{% endfor %}
 								</ul>
 							</div>
@@ -81,7 +81,7 @@
 							<div class="item-list tag-cloud">
 								<ul>
 									{% for tag in site.tags %}
-									<li><a href="/blog/tags/{{ tag | first | replace:' ','-' | downcase }}" name="{{ tag | first | replace:' ','-' | downcase }}">{{ tag | first }}</a></li>
+									<li><a href="/blog/tags/{{ tag | first | replace:' ','-' | downcase }}/" name="{{ tag | first | replace:' ','-' | downcase }}">{{ tag | first }}</a></li>
 									{% endfor %}
 								</ul>
 							</div>
