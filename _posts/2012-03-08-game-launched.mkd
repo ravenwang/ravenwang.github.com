@@ -1,0 +1,16 @@
+---
+title: 游戏上架：Star Sweeper
+category: My Apps
+tags:
+ - app
+ - game
+layout: post
+---
+
+工作室的第一款游戏终于在昨天上架了，由Unity开发，实际开发时间约两个月。但从开始的试验摸索阶段，加上做到一半砍掉的一款，前后折腾了一年才出了这点成果。目前玩法比较简单，我们会在后续版本不断丰富，对于整体的感觉我还是比较满意的，某些细节甚至小有得意。
+
+悲剧的是在提交时没有开启Game Center，导致排行榜无法使用，已经紧急提交了一个版本，一周内应该会通过审查。
+
+从没有任何经验开始，经历了一款完整的游戏从想法开始到完整地实现出来，还是颇有心得，总结之后奉上。
+
+<div align="center"><a href="http://itunes.apple.com/us/app/star-sweeper/id504497246?ls=1&mt=8"><img src="/images/star-sweeper-512.png" width="175" height="175" alt="Star Sweeper" /></a></div>
