@@ -1,0 +1,58 @@
+---
+title: ShadowGun分享的关卡、Shader和优化经验
+category: Unity
+tags:
+ - unity
+ - optimization
+ - shader
+layout: post
+---
+
+前两天，[MadFinger](http://madfingergames.com/)，就是当今iOS与Android上画质最牛逼闪闪的游戏之一——[ShadowGun](http://madfingergames.com/g_shadowgun.html)的开发商，令人惊异地放出了一个ShadowGun的样例关卡以及若干可免费使用的Shader，国外同行们的分享精神真的是令人赞叹不已。原文在[这里](http://blogs.unity3d.com/2012/03/23/shadowgun-optimizing-for-mobile-sample-level/)，以下是我的一些摘录和笔记。
+
+首先是一些优化常识。针对图形方面的优化主要包括三角形数量，纹理所占内存，以及Shader，前两项基本没什么好讲的，针对设备机能的限制制定相应的指标即可，所以Shader就成为了图形性能优化的关键。
+
+__Alpha blending__
+
+在Unity官方文档中讲，由于硬件原因，在iOS设备上使用alpha-test会造成很大的性能开销，应尽量使用alpha-blend代替。这里提到，在同屏使用alpha-blend的面数，尤其是这些面所占屏幕面积的大小，对性能也会造成很大影响。原因是使用alpha-blend的面会造成overdraw的增加，这尤其对低性能设备的影响很大。不过没有购买Pro版，没有Occlusion Culling功能的话，就不必顾虑这一问题了，反正overdraw是必然的。
+
+__复杂的Per-pixel shader__
+
+Per-pixel shader即Fragment shader，顾名思义是要对每个渲染到屏幕上的像素做处理的shader，如果per-pixel shader比较复杂且需要处理的像素很多时，也就是使用该shader的面占屏幕面积很大时，对性能的影响甚至要超过alpha blending。因此复杂的per-pixel shader只适用于小物体。
+
+下面是对几个Shader的逐一讲解：
+
+###Environment specular maps(Shader Virtual Gloss Per Vertex Additive)###
+
+Specular map通常都是利用贴图的alpha通道来定义物体表面的光滑程度（反光度），这个shader的特点是per-vertex计算反光度的，有着相当不错的效果的同时比per-pixel的shader性能要高得多。这个shader很适用于关卡环境等占很大区域的模型。
+
+###经过优化的动态角色光照和阴影(Lightprobes和BRDF Shader)###
+
+传统的Lightmaps无法支持动态物体，对此Unity提供了[Light probes](http://blogs.unity3d.com/2011/03/09/light-probes/)技术，预先把动态物体的光照信息保存在代理对象(即Light probes)中，运行时动态物体从距离最近的Probe中获取光照信息。
+
+Unity本身还提供了一个效果非常棒的专为移动设备优化过的角色Shader，支持Diffuse、Specular和Normal maps，并通过一个特殊的脚本生成贴图用于模仿BRDF光照效果。最终产生的效果堪比次时代大作中的角色光影效果。
+
+###雾和体积光(Shader Blinking Godrays)###
+
+目前在移动设备上要开启真正的雾效基本不可行，ShadowGun的方案是通过简单的网格＋透明贴图(称为雾面)来模拟雾效。在玩家靠近时，雾面逐渐变淡，同时fog plane的顶点也会移开(即使完全透明的alpha面也会消耗很多渲染时间)。
+
+使用这个Shader的网格需要经过处理：
+
+* 顶点的alpha值用于决定顶点是否可以移动(在例子中0为不可动，1为可动)。
+* 顶点法线决定移动的方向
+* 然后Shader通过计算与观察者的距离来控制雾面的淡入/淡出。
+
+这个Shader还可以用来做体积光和其它一些alpha效果。
+
+###飞机坠毁的浓烟效果(Shader Scroll 2 Layers Sine Alpha-blended)###
+
+通过粒子产生浓烟的代价太高，所以ShadowGun中使用了网格＋贴图动画来制作这个效果。通过混合两层贴图并让它们交错移动来产生动画效果。其中顶点alpha值用于让网格的边缘看起来比较柔和，同时使用顶点颜色来模拟从火焰到烟雾的过渡效果。
+
+###带动态效果的天空盒(Shader Scroll 2 Layers Multiplicative)###
+
+通过两张贴图的混合和移动产生云的动态效果。
+
+###旗帜和衣服的飘动效果(Shader Lightmap + Wind)###
+
+同样利用顶点alpha值决定哪些顶点可以移动，然后shader的参数用于调整摆动的方向和速度。
+
