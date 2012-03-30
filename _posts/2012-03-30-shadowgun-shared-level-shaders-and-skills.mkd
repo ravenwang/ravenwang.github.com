@@ -8,6 +8,9 @@ tags:
 layout: post
 ---
 
+<br />
+<div align="center"><a href="http://beta.unity3d.com/assetstore/ShadowgunSampleLevel.zip"><img align="center" src="http://blogs.unity3d.com/wp-content/uploads/2012/03/download-shadowgun-sample.jpg" /></a></div>
+
 前两天，[MadFinger](http://madfingergames.com/)，就是当今iOS与Android上画质最牛逼闪闪的游戏之一——[ShadowGun](http://madfingergames.com/g_shadowgun.html)的开发商，令人惊异地放出了一个ShadowGun的样例关卡以及若干可免费使用的Shader，国外同行们的分享精神真的是令人赞叹不已。原文在[这里](http://blogs.unity3d.com/2012/03/23/shadowgun-optimizing-for-mobile-sample-level/)，以下是我的一些摘录和笔记。
 
 首先是一些优化常识。针对图形方面的优化主要包括三角形数量，纹理所占内存，以及Shader，前两项基本没什么好讲的，针对设备机能的限制制定相应的指标即可，所以Shader就成为了图形性能优化的关键。
