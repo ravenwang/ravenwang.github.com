@@ -3,8 +3,15 @@ title: ShadowGun分享的关卡、Shader和优化经验
 category: Unity
 tags:
  - unity
+ - shadowgun
  - optimization
  - shader
+ - specular-maps
+ - lighting
+ - light-probes
+ - brdf
+ - fog
+ - fog-plane
 layout: post
 ---
 
@@ -29,7 +36,7 @@ Per-pixel shader即Fragment shader，顾名思义是要对每个渲染到屏幕�
 
 Specular map通常都是利用贴图的alpha通道来定义物体表面的光滑程度（反光度），这个shader的特点是per-vertex计算反光度的，有着相当不错的效果的同时比per-pixel的shader性能要高得多。这个shader很适用于关卡环境等占很大区域的模型。
 
-###经过优化的动态角色光照和阴影(Lightprobes和BRDF Shader)###
+###经过优化的动态角色光照和阴影(Light probes和BRDF Shader)###
 
 传统的Lightmaps无法支持动态物体，对此Unity提供了[Light probes](http://blogs.unity3d.com/2011/03/09/light-probes/)技术，预先把动态物体的光照信息保存在代理对象(即Light probes)中，运行时动态物体从距离最近的Probe中获取光照信息。
 
