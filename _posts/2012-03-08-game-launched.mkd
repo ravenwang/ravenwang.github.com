@@ -1,9 +1,11 @@
 ---
 title: 游戏上架：Star Sweeper
-category: My Apps
+category: Works
 tags:
  - app
  - game
+ - unity
+ - star-sweeper
 layout: post
 ---
 
